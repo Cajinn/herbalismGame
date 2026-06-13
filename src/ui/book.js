@@ -6,10 +6,11 @@ import { SEASONS, DAYS_PER_SEASON, getSeasonKey } from "../sim/time.js";
 import {
   isGesehen, isGelernt, getRevealedMerkmale, hasCrafted,
 } from "../sim/progress.js";
-import { drawSprite } from "../engine/pixelSprite.js";
+import { drawTile } from "../engine/tileset.js";
+import { herbTile } from "../data/herbTiles.js";
 
 const MERKMALE_ORDER = ["blattform", "blattstellung", "bluete", "geruch", "stengel", "wuchshoehe"];
-const SPRITE_SCALE = 4; // 16px → 64px in book
+const TILE_BOOK_SIZE = 64; // 16px source → 64px in book (4×)
 
 // Full-screen notebook overlay. Two chapters: Pflanzen (progressive reveal)
 // and Rezepte (known preparations). Opened from HUD or Buchstand station.
@@ -137,15 +138,16 @@ export function createBook(root) {
       plateDiv.style.backgroundImage = `url('assets/plates/${herb.plate}')`;
     }
 
-    // Sprite preview always shown if gesehen
+    // Tile preview always shown if gesehen
     if (gesehen) {
       const canvas = document.createElement("canvas");
       canvas.className = "book__sprite";
-      canvas.width  = herb.sprite.width  * SPRITE_SCALE;
-      canvas.height = herb.sprite.height * SPRITE_SCALE;
+      canvas.width  = TILE_BOOK_SIZE;
+      canvas.height = TILE_BOOK_SIZE;
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingEnabled = false;
-      drawSprite(ctx, herb.sprite, 0, 0, SPRITE_SCALE);
+      const [atlas, idx] = herbTile(speciesId);
+      drawTile(ctx, atlas, idx, 0, 0, TILE_BOOK_SIZE);
       plateDiv.appendChild(canvas);
     }
 

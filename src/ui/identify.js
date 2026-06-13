@@ -1,6 +1,7 @@
 import { strings } from "../data/strings.de.js";
 import { herbs } from "../data/herbs/index.js";
-import { drawSprite } from "../engine/pixelSprite.js";
+import { drawTile } from "../engine/tileset.js";
+import { herbTile } from "../data/herbTiles.js";
 import { recordIdentification, isGelernt } from "../sim/progress.js";
 
 // ── Botanical plate lightbox ──────────────────────────────────────────────────
@@ -53,7 +54,6 @@ function getLightbox() {
 }
 
 const MERKMALE_ORDER = ["blattform", "blattstellung", "bluete", "geruch", "stengel", "wuchshoehe"];
-const SPRITE_SCALE = 6; // 16px sprite -> 96px preview
 const MAX_CANDIDATES = 4;
 
 // Candidate list for the guessing step (PLAN.md §7): the true species, its
@@ -231,15 +231,18 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
     }
   }
 
-  // Builds the pixel-art canvas element used as fallback when no plate exists.
-  function buildSpriteCanvas(herb) {
+  // Builds a 96×96 canvas showing the herb's Sprout Lands tile.
+  // speciesKey is the registry key (e.g. "baerlauch") used for the tile lookup.
+  const TILE_PREVIEW_SIZE = 96; // 16 px source → 96 px preview (6×)
+  function buildSpriteCanvas(speciesKey) {
     const canvas = document.createElement("canvas");
     canvas.className = "identify__sprite";
-    canvas.width = herb.sprite.width * SPRITE_SCALE;
-    canvas.height = herb.sprite.height * SPRITE_SCALE;
+    canvas.width  = TILE_PREVIEW_SIZE;
+    canvas.height = TILE_PREVIEW_SIZE;
     const spriteCtx = canvas.getContext("2d");
     spriteCtx.imageSmoothingEnabled = false;
-    drawSprite(spriteCtx, herb.sprite, 0, 0, SPRITE_SCALE);
+    const [atlas, idx] = herbTile(speciesKey);
+    drawTile(spriteCtx, atlas, idx, 0, 0, TILE_PREVIEW_SIZE);
     return canvas;
   }
 
@@ -268,14 +271,14 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
         getLightbox().open(`assets/plates/${herb.plate}`, herb.nameLat ?? "");
       });
 
-      // On load error, swap to pixel sprite (graceful fallback)
+      // On load error, swap to SL tile canvas (graceful fallback)
       plateImg.addEventListener("error", () => {
-        plateImg.replaceWith(buildSpriteCanvas(herb));
+        plateImg.replaceWith(buildSpriteCanvas(spawn.species));
       });
 
       header.appendChild(plateImg);
     } else {
-      header.appendChild(buildSpriteCanvas(herb));
+      header.appendChild(buildSpriteCanvas(spawn.species));
     }
 
     const standort = document.createElement("dl");

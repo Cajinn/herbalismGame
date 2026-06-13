@@ -1,11 +1,11 @@
 import { SCALE, VIEWPORT_TILES_X, VIEWPORT_TILES_Y } from "./engine/config.js";
-import { loadTileset } from "./engine/tileset.js";
+import { loadTileset, drawTile } from "./engine/tileset.js";
 import { startLoop } from "./engine/loop.js";
 import { initInput, consumeJustPressed } from "./engine/input.js";
 import { createCamera, updateCamera } from "./engine/camera.js";
 import { renderMap, mapPixelSize } from "./engine/tilemap.js";
 import { drawPlayer, drawCharacter } from "./engine/sprites.js";
-import { drawSprite } from "./engine/pixelSprite.js";
+import { herbTile } from "./data/herbTiles.js";
 import { loadGame, saveGame, clearGame } from "./engine/save.js";
 import { loadMap } from "./world/mapLoader.js";
 import { createPlayer, updatePlayer } from "./world/player.js";
@@ -471,7 +471,8 @@ function render() {
   for (const spawn of activeSpawns) {
     const screenX = (spawn.x * map.tileSize - camera.x) * SCALE;
     const screenY = (spawn.y * map.tileSize - camera.y) * SCALE;
-    drawSprite(ctx, spawn.sprite ?? spawn.herb.sprite, screenX, screenY, SCALE);
+    const [htAtlas, htIdx] = herbTile(spawn.species);
+    drawTile(ctx, htAtlas, htIdx, screenX, screenY, map.tileSize * SCALE);
   }
 
   for (const npc of getActiveNpcs(map.id, time, villagerStatus)) {
