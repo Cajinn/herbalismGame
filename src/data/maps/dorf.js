@@ -1,0 +1,55 @@
+// Dorf — village square. Hub map: Kräuterhäuschen, Dorfladen, Dorflinde, Brunnen.
+// Grid legend: placeholder colors for M1; swap to Kenney tile images later
+// without touching engine code (tilemap.js only reads `solid` + `color`/`sprite`).
+export const dorf = {
+  id: "dorf",
+  name: "Dorf",
+  tileSize: 16,
+  biotope: "dorf",
+  legend: {
+    ".": { tile: "grass",     solid: false, color: "#7cb342" },
+    "#": { tile: "path",      solid: false, color: "#d7c4a3" },
+    "T": { tile: "baum",      solid: true,  color: "#2e7d32" },
+    "B": { tile: "strauch",   solid: true,  color: "#558b2f" },
+    "H": { tile: "haus",      solid: true,  color: "#a1887f" },
+    "L": { tile: "dorflinde", solid: true,  color: "#1b5e20" },
+    "W": { tile: "brunnen",   solid: true,  color: "#4fc3f7" },
+    "S": { tile: "laden",     solid: true,  color: "#8d6e3a" },
+    "A": { tile: "brett",     solid: true,  color: "#6d4c41" },
+  },
+  grid: [
+    "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTT",
+    "T............................T",
+    "T.......B............B.......T",
+    "T............................T",
+    "T...HHH........#......HHS....T",
+    "T...HHH........#......HHS....T",
+    "T..............#.............T",
+    "T..............#.............T",
+    "T..............#.............T",
+    "T.............L#W............T",
+    "#.##########################.#",
+    "T.............A#.............T",
+    "T..............#.............T",
+    "T..............#.............T",
+    "T...HHH........#......HHH....T",
+    "T...HHH........#......HHH....T",
+    "T..............#.............T",
+    "T.......B............B.......T",
+    "T............................T",
+    "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTT",
+  ],
+  playerSpawn: { x: 15, y: 11 },
+  exits: [
+    { x: 15, y: 0,  target: "waldrand",         spawn: { x: 15, y: 18 } },
+    { x: 15, y: 19, target: "garten",            spawn: { x: 15, y: 1  } },
+    { x: 0,  y: 10, target: "wiese",             spawn: { x: 28, y: 10 } },
+    { x: 29, y: 10, target: "bachufer",          spawn: { x: 1,  y: 10 } },
+    { x: 5,  y: 6,  target: "kraeuterhaeuschen", spawn: { x: 9,  y: 10 } },
+  ],
+  // Stations: dorfladen (S tile col 27, rows 4-5) and anschlagbrett (A tile col 13, row 11).
+  stations: [
+    { x: 26, y: 5,  type: "dorfladen"     },
+    { x: 13, y: 11, type: "anschlagbrett" },
+  ],
+};

@@ -1,0 +1,426 @@
+/* ── Book / Kräuterbuch overlay (M3) ──────────────────────────────────────── */
+
+.book {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+  pointer-events: auto;
+  z-index: 20;
+}
+
+.book[hidden] {
+  display: none;
+}
+
+.book__notebook {
+  display: flex;
+  flex-direction: column;
+  width: 900px;
+  max-width: calc(100% - 24px);
+  height: 600px;
+  max-height: calc(100% - 24px);
+  background: #f0e0b0;
+  border: 3px solid #7a5320;
+  border-radius: 4px;
+  color: #2a1a0a;
+  font-family: Georgia, "Times New Roman", serif;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.book__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: #8b5e2a;
+  border-bottom: 2px solid #5a3a10;
+  flex-shrink: 0;
+}
+
+.book__title {
+  margin: 0;
+  font-size: 17px;
+  color: #f5e6c0;
+  white-space: nowrap;
+}
+
+.book__tabs {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.book__tab {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 4px 14px;
+  border: 1px solid #c8963a;
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  background: #6b4a1a;
+  color: #f0d8a0;
+  cursor: pointer;
+}
+
+.book__tab:hover {
+  background: #8b6232;
+}
+
+.book__tab--active {
+  background: #f0e0b0;
+  color: #2a1a0a;
+}
+
+.book__close {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 4px 12px;
+  border: 1px solid #c8963a;
+  border-radius: 3px;
+  background: #6b4a1a;
+  color: #f0d8a0;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.book__close:hover {
+  background: #8b6232;
+}
+
+/* ── Content area ───────────────────────────────────────────────────────── */
+
+.book__content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Pflanzen chapter ───────────────────────────────────────────────────── */
+
+.book__pflanzen-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.book__species-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 136px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 8px 6px;
+  border-right: 1px solid #b89050;
+  background: #e8d098;
+}
+
+.book__species-btn {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #2a1a0a;
+  cursor: pointer;
+  text-align: left;
+}
+
+.book__species-btn:hover {
+  background: #d4b870;
+}
+
+.book__species-btn--active {
+  background: #c8a84a;
+  border-color: #7a5320;
+}
+
+.book__species-btn--unbekannt {
+  color: #7a6040;
+  font-style: italic;
+}
+
+/* ── Herb spread (two pages) ─────────────────────────────────────────────── */
+
+.book__spread {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  gap: 18px;
+}
+
+.book__spread > p {
+  color: #7a6040;
+  font-style: italic;
+  padding: 4px;
+}
+
+.book__page {
+  flex: 1;
+  min-width: 0;
+}
+
+.book__page--left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 180px;
+}
+
+/* ── Plate & sprite ─────────────────────────────────────────────────────── */
+
+.book__plate {
+  width: 160px;
+  height: 160px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #e8d098;
+  border: 1px solid #b89050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book__sprite {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.book__latin {
+  margin: 0;
+  font-size: 12px;
+  font-style: italic;
+  color: #5a4020;
+  text-align: center;
+}
+
+.book__schweizerdeutsch {
+  margin: 0;
+  font-size: 12px;
+  color: #6a5030;
+  text-align: center;
+}
+
+/* ── Right page ─────────────────────────────────────────────────────────── */
+
+.book__herb-name {
+  margin: 0 0 10px;
+  font-size: 20px;
+  color: #2a1a0a;
+  border-bottom: 1px solid #b89050;
+  padding-bottom: 4px;
+}
+
+.book__section {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: rgba(120, 80, 20, 0.07);
+  border-left: 3px solid #b89050;
+}
+
+.book__section--danger {
+  border-left-color: #c04040;
+  background: rgba(192, 64, 64, 0.07);
+}
+
+.book__section-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5a3a10;
+}
+
+.book__section--danger .book__section-label {
+  color: #a03030;
+}
+
+.book__section > p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.book__merkmale,
+.book__standort {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.book__merkmale dt,
+.book__standort dt {
+  font-weight: bold;
+  color: #5a3a10;
+  white-space: nowrap;
+}
+
+.book__merkmale dd,
+.book__standort dd {
+  margin: 0;
+}
+
+.book__verwechslung-entry {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #8b2020;
+}
+
+/* ── Rezepte chapter ─────────────────────────────────────────────────────── */
+
+.book__rezepte-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px;
+  align-content: flex-start;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.book__rezept-card {
+  width: 260px;
+  padding: 10px 12px;
+  background: #e8d098;
+  border: 1px solid #b89050;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.book__rezept-title {
+  margin: 0;
+  font-size: 14px;
+  color: #2a1a0a;
+  border-bottom: 1px solid #c8a84a;
+  padding-bottom: 4px;
+}
+
+.book__rezept-station,
+.book__rezept-dauer,
+.book__rezept-menge,
+.book__rezept-wirkung,
+.book__rezept-note {
+  margin: 0;
+  font-size: 12px;
+}
+
+.book__rezept-station {
+  color: #5a4020;
+  font-style: italic;
+}
+
+.book__rezept-dauer {
+  color: #4a3818;
+}
+
+.book__rezept-wirkung {
+  color: #2a4a1a;
+  font-style: italic;
+}
+
+.book__rezept-note {
+  color: #8b6030;
+}
+
+/* ── Verwechslungen chapter (M5 WP9) ────────────────────────────────────── */
+
+.book__verwechslungen-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+}
+
+.book__verwechslung-card {
+  padding: 10px 14px;
+  border-radius: 4px;
+  border-left: 4px solid #8b6030;
+  background: rgba(139, 96, 48, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.book__verwechslung-card--giftig {
+  border-left-color: #c87030;
+  background: rgba(200, 112, 48, 0.08);
+}
+
+.book__verwechslung-card--toedlich {
+  border-left-color: #b03030;
+  background: rgba(176, 48, 48, 0.10);
+}
+
+.book__verwechslung-pair {
+  margin: 0;
+  font-size: 14px;
+  color: #2a1a0a;
+}
+
+.book__verwechslung-gefahr {
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.book__verwechslung-gefahr--toedlich {
+  color: #b03030;
+}
+
+.book__verwechslung-gefahr--giftig {
+  color: #c87030;
+}
+
+.book__verwechslung-gefahr--wirkungslos {
+  color: #5a5020;
+}
+
+.book__verwechslung-unterscheidung {
+  margin: 0;
+  font-size: 12px;
+  color: #3a2a10;
+  line-height: 1.5;
+}
+
+/* ── Almanach chapter (M5 WP10) ─────────────────────────────────────────── */
+
+.book__almanach-list {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 3px 12px;
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.book__almanach-list dt {
+  font-weight: bold;
+  color: #2a1a0a;
+}
+
+.book__almanach-list dd {
+  margin: 0;
+  color: #4a3018;
+  font-style: italic;
+}
+
+.book__almanach-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #5a4820;
+  font-style: italic;
+}

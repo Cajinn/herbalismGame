@@ -1,0 +1,115 @@
+import { createSprite } from "../../engine/pixelSprite.js";
+
+// Schwarzer Holunder (Sambucus nigra). Multi-stage: Blüten Frühsommer, Beeren Herbst.
+export const holunder = {
+  nameDe: "Schwarzer Holunder",
+  nameLat: "Sambucus nigra",
+  schweizerdeutsch: "Holerbeeri",
+  plate: "sambucus-nigra.jpg",
+  biotope: ["waldrand", "wald"],
+  sonne: "halbschattig bis sonnig",
+  boden: "nährstoffreich, feucht",
+  saison: {
+    teil: {
+      blueten: ["sommer:1-14"],
+      beeren: ["herbst:1-28"],
+    },
+  },
+  realMonths: [6, 7, 9, 10],
+  merkmale: {
+    blattform: "unpaarig gefiedert, 5–7 Blättchen, elliptisch, gesägt",
+    blattstellung: "gegenständig, gefiedert",
+    bluete: "cremeweiß, in flachen Schirmrispen, stark duftend — Mitte Juni",
+    geruch: "Blüten: süßlich-muskatartig; Rinde: unangenehm-ranzig",
+    stengel: "graubrauner Strauch/Baum, Rinde mit Korkwarzen, Mark weiß und schwammig",
+    wuchshoehe: "2–7 m Strauch",
+  },
+  verwechslung: [
+    {
+      art: "attich",
+      gefahr: "giftig",
+      unterscheidung:
+        "Attich (Zwergholunder) ist krautig, Blüten aufrecht, riecht unangenehm, Beeren schwarz-giftig; Holunder ist Strauch/Baum",
+    },
+  ],
+  geschuetzt: false,
+  kultivierbar: true,
+  verwendung: {
+    blueten: ["tee", "sirup", "trocknen"],
+    beeren: ["sirup"],
+    wirkungTraditionell:
+      "Blüten: schweißtreibend, fiebersenkend, bei Erkältungen; Beeren (nur GEKOCHT!): vitamin- und antioxidantienreich",
+  },
+  fundorte: 3,
+  stages: {
+    bluehend: {
+      windows: ["sommer:1-14"],
+      sprite: createSprite({
+        palette: [null, "#33691e", "#fff8e1", "#fffde7"],
+        rows: [
+          "0002222222200000",
+          "0022222222220000",
+          "0022323232220000",
+          "0022222222220000",
+          "0002222222200000",
+          "0000022222000000",
+          "0000001100000000",
+          "0000011110000000",
+          "0001111111100000",
+          "0001111111100000",
+          "0011111111110000",
+          "0011111111110000",
+          "0001111111100000",
+          "0001111111100000",
+          "0000111111000000",
+          "0000011110000000",
+        ],
+      }),
+    },
+    fruchtend: {
+      windows: ["herbst:1-28"],
+      sprite: createSprite({
+        palette: [null, "#33691e", "#4a148c", "#1a237e"],
+        rows: [
+          "0002222222200000",
+          "0023323332320000",
+          "0023323332320000",
+          "0022222222220000",
+          "0002222222200000",
+          "0000022222000000",
+          "0000001100000000",
+          "0000011110000000",
+          "0001111111100000",
+          "0001111111100000",
+          "0011111111110000",
+          "0011111111110000",
+          "0001111111100000",
+          "0001111111100000",
+          "0000111111000000",
+          "0000011110000000",
+        ],
+      }),
+    },
+  },
+  sprite: createSprite({
+    palette: [null, "#33691e", "#fff8e1", "#fffde7"],
+    rows: [
+      "0002222222200000",
+      "0022222222220000",
+      "0022323232220000",
+      "0022222222220000",
+      "0002222222200000",
+      "0000022222000000",
+      "0000001100000000",
+      "0000011110000000",
+      "0001111111100000",
+      "0001111111100000",
+      "0011111111110000",
+      "0011111111110000",
+      "0001111111100000",
+      "0001111111100000",
+      "0000111111000000",
+      "0000011110000000",
+    ],
+  }),
+};
