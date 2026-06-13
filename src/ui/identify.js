@@ -3,6 +3,55 @@ import { herbs } from "../data/herbs/index.js";
 import { drawSprite } from "../engine/pixelSprite.js";
 import { recordIdentification, isGelernt } from "../sim/progress.js";
 
+// ── Botanical plate lightbox ──────────────────────────────────────────────────
+// A singleton overlay that shows a full-size plate image.  Created once on first
+// use and reused for every subsequent open.
+let _lightbox = null;
+
+function getLightbox() {
+  if (_lightbox) return _lightbox;
+
+  const overlay = document.createElement("div");
+  overlay.className = "plate-lightbox";
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("role", "dialog");
+  overlay.hidden = true;
+
+  const img = document.createElement("img");
+  img.className = "plate-lightbox__img";
+  img.alt = "";
+
+  // Close hint — TODO: move to strings.de.js
+  const hint = document.createElement("p");
+  hint.className = "plate-lightbox__hint";
+  hint.textContent = "Klicken oder Esc zum Schließen";
+
+  overlay.append(img, hint);
+  document.body.appendChild(overlay);
+
+  function closeLightbox() {
+    overlay.hidden = true;
+    img.src = "";
+  }
+
+  overlay.addEventListener("click", closeLightbox);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) {
+      closeLightbox();
+    }
+  });
+
+  _lightbox = {
+    open(src, altText) {
+      img.src = src;
+      img.alt = altText ?? "";
+      overlay.hidden = false;
+    },
+  };
+  return _lightbox;
+}
+
 const MERKMALE_ORDER = ["blattform", "blattstellung", "bluete", "geruch", "stengel", "wuchshoehe"];
 const SPRITE_SCALE = 6; // 16px sprite -> 96px preview
 const MAX_CANDIDATES = 4;
@@ -182,6 +231,18 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
     }
   }
 
+  // Builds the pixel-art canvas element used as fallback when no plate exists.
+  function buildSpriteCanvas(herb) {
+    const canvas = document.createElement("canvas");
+    canvas.className = "identify__sprite";
+    canvas.width = herb.sprite.width * SPRITE_SCALE;
+    canvas.height = herb.sprite.height * SPRITE_SCALE;
+    const spriteCtx = canvas.getContext("2d");
+    spriteCtx.imageSmoothingEnabled = false;
+    drawSprite(spriteCtx, herb.sprite, 0, 0, SPRITE_SCALE);
+    return canvas;
+  }
+
   function render(spawn) {
     panel.innerHTML = "";
     const { herb } = spawn;
@@ -194,14 +255,28 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
     const header = document.createElement("div");
     header.className = "identify__header";
 
-    const canvas = document.createElement("canvas");
-    canvas.className = "identify__sprite";
-    canvas.width = herb.sprite.width * SPRITE_SCALE;
-    canvas.height = herb.sprite.height * SPRITE_SCALE;
-    const spriteCtx = canvas.getContext("2d");
-    spriteCtx.imageSmoothingEnabled = false;
-    drawSprite(spriteCtx, herb.sprite, 0, 0, SPRITE_SCALE);
-    header.appendChild(canvas);
+    // Show real botanical plate when available; fall back to pixel sprite.
+    // Path convention matches book.js: assets/plates/<plate>
+    if (herb.plate) {
+      const plateImg = document.createElement("img");
+      plateImg.className = "identify__plate";
+      plateImg.src = `assets/plates/${herb.plate}`;
+      plateImg.alt = herb.nameLat ?? "";
+      plateImg.title = "Vergrößern";
+
+      plateImg.addEventListener("click", () => {
+        getLightbox().open(`assets/plates/${herb.plate}`, herb.nameLat ?? "");
+      });
+
+      // On load error, swap to pixel sprite (graceful fallback)
+      plateImg.addEventListener("error", () => {
+        plateImg.replaceWith(buildSpriteCanvas(herb));
+      });
+
+      header.appendChild(plateImg);
+    } else {
+      header.appendChild(buildSpriteCanvas(herb));
+    }
 
     const standort = document.createElement("dl");
     standort.className = "identify__standort";

@@ -727,3 +727,58 @@ body {
   font-size: 12px;
   color: #ffb74d;
 }
+
+/* ── Botanical plate in identify header (V2 WP5) ────────────────────────── */
+
+.identify__plate {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  object-position: top center;
+  border: 1px solid var(--color-accent);
+  border-radius: 2px;
+  background: #14110b;
+  cursor: zoom-in;
+}
+
+.identify__plate:hover {
+  border-color: #c8a050;
+  box-shadow: 0 0 0 1px #c8a050;
+}
+
+/* ── Plate lightbox (V2 WP5) ────────────────────────────────────────────── */
+
+.plate-lightbox {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 200;
+  cursor: zoom-out;
+}
+
+.plate-lightbox[hidden] {
+  display: none;
+}
+
+.plate-lightbox__img {
+  max-width: min(800px, 92vw);
+  max-height: 80vh;
+  object-fit: contain;
+  border: 1px solid var(--color-accent);
+  border-radius: 3px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+}
+
+.plate-lightbox__hint {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.03em;
+  pointer-events: none;
+}
