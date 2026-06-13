@@ -9,6 +9,7 @@
 // Paths additionally overlay paths.png fringe marks for surface texture.
 import { drawTile } from "./tileset.js";
 import { computeBitmask, dirtBlobIndex, pathFringeIndex } from "./autotile.js";
+import { buildingSolidAt } from "./buildings.js";
 
 export function getTileDef(map, tx, ty) {
   const row = map.grid[ty];
@@ -19,6 +20,7 @@ export function getTileDef(map, tx, ty) {
 }
 
 export function isSolid(map, tx, ty) {
+  if (buildingSolidAt(map, tx, ty)) return true;
   const def = getTileDef(map, tx, ty);
   return def === null || def.solid;
 }

@@ -4,6 +4,7 @@ import { startLoop } from "./engine/loop.js";
 import { initInput, consumeJustPressed } from "./engine/input.js";
 import { createCamera, updateCamera } from "./engine/camera.js";
 import { renderMap, mapPixelSize } from "./engine/tilemap.js";
+import { renderBuildings } from "./engine/buildings.js";
 import { drawPlayer, drawCharacter } from "./engine/sprites.js";
 import { herbTile } from "./data/herbTiles.js";
 import { loadGame, saveGame, clearGame } from "./engine/save.js";
@@ -54,6 +55,9 @@ loadTileset("paths",     "assets/tiles/sprout/paths.png",         4);
 loadTileset("bridge",    "assets/tiles/sprout/bridge.png",        5);
 loadTileset("fences",    "assets/tiles/sprout/fences.png",        4);
 loadTileset("house",     "assets/tiles/sprout/wooden_house.png",  7);
+loadTileset("roof",      "assets/tiles/sprout/house_roof.png",     7);
+loadTileset("wall",      "assets/tiles/sprout/house_walls.png",    5);
+loadTileset("door",      "assets/tiles/sprout/doors.png",          1);
 loadTileset("furniture", "assets/tiles/sprout/furniture.png",     9);
 loadTileset("chest",     "assets/tiles/sprout/chest.png",        15);
 loadTileset("biom",      "assets/tiles/sprout/grass_biom.png",    9);
@@ -467,6 +471,7 @@ function update(dt) {
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   renderMap(ctx, map, camera, SCALE);
+  renderBuildings(ctx, map, camera, SCALE);
 
   for (const spawn of activeSpawns) {
     const screenX = (spawn.x * map.tileSize - camera.x) * SCALE;

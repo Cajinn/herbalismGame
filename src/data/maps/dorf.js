@@ -72,27 +72,29 @@ export const dorf = {
     "C": { tile: "abgabe",   solid: true, color: "#a07848", t: ["chest",  0] },
   },
 
-  // 30 cols × 22 rows
+  // 30 cols × 22 rows. Buildings (house/shop/villager huts) are drawn by the
+  // building-overlay renderer (see `buildings` below); their footprints are
+  // plain ground here and collision comes from the overlay.
   grid: [
     "TT....=....TT.......TT....TT..",  // 0: top border; col 6 = waldrand exit
     "TT....#....TT.,,....TT....TT..",  // 1: stream crossed by bridge at col 6
-    "......#..........B..rRrRrRrR..",  // 2: house roof top
-    "......#..rRr.....B..mMmMmMmM..",  // 3: shop roof + house roof mid
-    "......#..mMm.....B..vVvVvVvV..",  // 4: shop roof mid + house roof bot
-    ".B....#..pPp........wWwWwWwW..",  // 5: shop wall + house wall top
-    "......#..qQq........gGgGgGgG..",  // 6: shop wall + house wall window
-    "......#..QQQ........xXdDxX....",  // 7: shop base, door cols 22-23
+    "......#..........B............",  // 2: herbalist house (cols 20-27, overlay)
+    "......#..........B............",  // 3: shop (cols 9-11, overlay)
+    "......#..........B............",  // 4
+    ".B....#.......................",  // 5
+    "......#.......................",  // 6
+    "......#.......................",  // 7: house door (22,7) → cottage
     ".B....#..........B..A...C.....",  // 8: notice board (col 20), deposit box (col 24)
     "......#................B......",  // 9: open
-    "......#.......................",  // 10: open — NOTE: 29 chars, pad below
+    "......#.......................",  // 10: open
     "##############################",  // 11: E/W exits col 0 & col 29
     "......#......cfffffffc........",  // 12: garden fence top
     ".B....#......fEEEEEEEf........",  // 13: garden beds
     "......#......fEEEEEEEf...B....",  // 14: garden beds
     "......#......cffffffffc.......",  // 15: garden fence bottom
-    "oBo...#..ooo...ooo............",  // 16: villager houses
-    "OOO...#..OOO...OOO............",  // 17
-    "iii...#..iii...iii............",  // 18
+    "......#.......................",  // 16: villager huts (overlay)
+    "......#.......................",  // 17
+    "......#.......................",  // 18
     "......#.....B.................",  // 19
     ".B....#..................B....",  // 20
     "......#...........B...........",  // 21: garten exit col 6
@@ -106,8 +108,16 @@ export const dorf = {
     { x: 6,  y: 21, target: "garten",            spawn: { x: 14, y: 1  } },
   ],
   stations: [
-    { x: 9,  y: 6, type: "dorfladen"     },
+    { x: 10, y: 8, type: "dorfladen"     },  // in front of the shop door
     { x: 20, y: 8, type: "anschlagbrett" },
     { x: 24, y: 8, type: "abgabebox"     },
+  ],
+  // Sprout Lands buildings drawn over the terrain (roof overlaps wall).
+  buildings: [
+    { x: 20, y: 2, w: 8, roofBody: 2, door: { dx: 2 } }, // herbalist house, door (22,7) → cottage
+    { x: 9,  y: 3, w: 3, roofBody: 1, door: { dx: 1 } }, // shop, door (10,7)
+    { x: 0,  y: 15, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut (west)
+    { x: 9,  y: 15, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut (centre)
+    { x: 15, y: 16, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut (east)
   ],
 };
