@@ -85,13 +85,13 @@ export const dorf = {
     "......#.......................",  // 6
     "......#.......................",  // 7: house door (22,7) → cottage
     ".B....#..........B..A...C.....",  // 8: notice board (col 20), deposit box (col 24)
-    "......#................B......",  // 9: open
-    "......#.......................",  // 10: open
-    "##############################",  // 11: E/W exits col 0 & col 29
-    "......#......cfffffffc........",  // 12: garden fence top
-    ".B....#......fEEEEEEEf........",  // 13: garden beds
-    "......#......fEEEEEEEf...B....",  // 14: garden beds
-    "......#......cffffffffc.......",  // 15: garden fence bottom
+    "......#.............EEEEEE....",  // 9: garden beds in front of the house
+    "......#.............EEEEEE....",  // 10: garden beds
+    "##############################",  // 11: W/E exits col 0 (stream) & col 29 (alpenwiese)
+    "......#.......................",  // 12
+    ".B....#.......................",  // 13
+    "......#..................B....",  // 14
+    "......#.......................",  // 15
     "......#.......................",  // 16: villager huts (overlay)
     "......#.......................",  // 17
     "......#.......................",  // 18
@@ -100,12 +100,21 @@ export const dorf = {
     "......#...........B...........",  // 21: garten exit col 6
   ],
   playerSpawn: { x: 15, y: 9 },
+  // North: no path. South → fieldland (wiese). West → stream (bachufer).
+  // East → alpenwiese (alpweide, gated by Vertrauen). Door → cottage.
   exits: [
-    { x: 6,  y: 0,  target: "waldrand",         spawn: { x: 15, y: 18 } },
-    { x: 29, y: 11, target: "wiese",             spawn: { x: 1,  y: 10 } },
+    { x: 6,  y: 21, target: "wiese",             spawn: { x: 15, y: 1  } },
     { x: 0,  y: 11, target: "bachufer",          spawn: { x: 29, y: 10 } },
+    { x: 29, y: 11, target: "alpweide",          spawn: { x: 1,  y: 10 } },
     { x: 22, y: 7,  target: "kraeuterhaeuschen", spawn: { x: 9,  y: 10 } },
-    { x: 6,  y: 21, target: "garten",            spawn: { x: 14, y: 1  } },
+  ],
+  // Garden beds in front of the herbalist house (moved from the old garten map).
+  beds: [
+    { bedId: "bed-1", x: 20, y: 9  },
+    { bedId: "bed-2", x: 22, y: 9  },
+    { bedId: "bed-3", x: 24, y: 9  },
+    { bedId: "bed-4", x: 21, y: 10 },
+    { bedId: "bed-5", x: 23, y: 10 },
   ],
   stations: [
     { x: 10, y: 8, type: "dorfladen"     },  // in front of the shop door

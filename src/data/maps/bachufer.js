@@ -47,5 +47,7 @@ export const bachufer = {
   exits: [
     // East edge ← back to the village (you arrive here walking west out of dorf).
     { x: 30, y: 10, target: "dorf", spawn: { x: 1, y: 11 } },
+    // West edge → deeper into the woods.
+    { x: 0, y: 10, target: "wald", spawn: { x: 15, y: 18 } },
   ],
 };

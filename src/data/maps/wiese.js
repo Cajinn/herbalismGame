@@ -17,7 +17,7 @@ export const wiese = {
     "T": { tile: "baum",    solid: true,  color: "#558b2f", t: ["biom",  39] },
   },
   grid: [
-    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTT",
     "T............................T",
     "T............................T",
     "T,...........................T",
@@ -27,7 +27,7 @@ export const wiese = {
     "T............................T",
     "T,...........................T",
     "T............................T",
-    "##############################",
+    "T#############################",
     "T,...........................T",
     "T............................T",
     "T,...........................T",
@@ -38,9 +38,9 @@ export const wiese = {
     "T............................T",
     "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   ],
-  playerSpawn: { x: 1, y: 10 },
+  playerSpawn: { x: 15, y: 1 },
   exits: [
-    // West edge ← back to the village (you arrive here walking east out of dorf).
-    { x: 0, y: 10, target: "dorf", spawn: { x: 28, y: 11 } },
+    // North edge ← back to the village (you arrive here walking south out of dorf).
+    { x: 15, y: 0, target: "dorf", spawn: { x: 6, y: 20 } },
   ],
 };

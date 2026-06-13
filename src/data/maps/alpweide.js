@@ -35,14 +35,14 @@ export const alpweide = {
     "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
     "R.,..........................R",
     "R............................R",
-    "R....reremr..................R",
-    "R....mMmMmM......B...........R",
-    "R....vVvVvV..................R",
-    "R....wWwWwW..................R",
-    "R....xxxxxR..................R",
+    "R............................R",
+    "R................B...........R",
+    "R............................R",
+    "R............................R",
+    "R............................R",
     "R.............R..............R",
     "R..,.................,.......R",
-    "R............................R",
+    ".............................R",
     "R............................R",
     "R.......R...,................R",
     "R.........R..................R",
@@ -53,8 +53,12 @@ export const alpweide = {
     "R..............#.............R",
     "RRRRRRRRRRRRRRR#RRRRRRRRRRRRRR",
   ],
-  playerSpawn: { x: 15, y: 18 },
+  playerSpawn: { x: 1, y: 10 },
   exits: [
-    { x: 15, y: 19, target: "wald", spawn: { x: 15, y: 1 } },
+    // West edge ← back to the village (reached from dorf's gated east exit).
+    { x: 0, y: 10, target: "dorf", spawn: { x: 28, y: 11 } },
+  ],
+  buildings: [
+    { x: 5, y: 3, w: 6, roofBody: 1, door: { dx: 2 } }, // alpine hut
   ],
 };

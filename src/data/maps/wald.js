@@ -41,7 +41,7 @@ export const wald = {
   ],
   playerSpawn: { x: 15, y: 18 },
   exits: [
-    { x: 15, y: 19, target: "waldrand", spawn: { x: 15, y: 1  } },
-    { x: 15, y: 0,  target: "alpweide", spawn: { x: 15, y: 18 } },
+    // South ← back to the stream (bachufer). North is a dead end (deep forest).
+    { x: 15, y: 19, target: "bachufer", spawn: { x: 1, y: 10 } },
   ],
 };
