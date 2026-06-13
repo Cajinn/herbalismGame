@@ -23,6 +23,9 @@ export const strings = {
     inventar: "Inventar",
     buch: "Buch",
     muenzen: "Münzen",
+    neuesSpiel: "Neues Spiel",
+    neuesSpielFrage:
+      "Neues Spiel beginnen? Dein aktueller Spielstand wird unwiderruflich gelöscht.",
   },
   interaktion: {
     hinweis: "[E] Pflanze untersuchen",
@@ -121,7 +124,7 @@ export const strings = {
     baldigVerfuegbar: "kommt mit dem Dorfladen.",
   },
   buch: {
-    titel: "Herbs Schmerbs",
+    titel: "Herbalism Game",
     tabPflanzen: "Pflanzen",
     tabRezepte: "Rezepte",
     tabVerwechslungen: "Verwechslungen",
@@ -203,7 +206,7 @@ export const strings = {
     genesen: (name) => `${name} ist wieder auf den Beinen.`,
   },
   titelbildschirm: {
-    titel: "Herbs Schmerbs",
+    titel: "Herbalism Game",
     untertitel: "Ein Kräuterspiel aus den Schweizer Alpen",
     starten: "Neu beginnen",
     weiter: "Weiterspielen",

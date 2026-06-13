@@ -3,7 +3,7 @@ import { formatClock, getSeasonKey, DAYS_PER_SEASON } from "../sim/time.js";
 
 // DOM overlay (PLAN.md §2: UI is DOM/CSS, not canvas) showing the clock and
 // the Schlafen/Speichern actions.
-export function createHud(root, { onSleep, onSave, onToggleInventory, onOpenBook }) {
+export function createHud(root, { onSleep, onSave, onToggleInventory, onOpenBook, onNewGame }) {
   const hud = document.createElement("div");
   hud.className = "hud";
 
@@ -32,7 +32,11 @@ export function createHud(root, { onSleep, onSave, onToggleInventory, onOpenBook
   buchBtn.textContent = strings.hud.buch;
   buchBtn.addEventListener("click", onOpenBook);
 
-  actions.append(sleepBtn, saveBtn, inventarBtn, buchBtn);
+  const neuesSpielBtn = document.createElement("button");
+  neuesSpielBtn.textContent = strings.hud.neuesSpiel;
+  neuesSpielBtn.addEventListener("click", onNewGame);
+
+  actions.append(sleepBtn, saveBtn, inventarBtn, buchBtn, neuesSpielBtn);
   hud.append(timeEl, statsEl, actions);
   root.appendChild(hud);
 

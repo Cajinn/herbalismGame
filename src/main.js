@@ -1,11 +1,12 @@
 import { SCALE, VIEWPORT_TILES_X, VIEWPORT_TILES_Y } from "./engine/config.js";
+import { loadTileset } from "./engine/tileset.js";
 import { startLoop } from "./engine/loop.js";
 import { initInput, consumeJustPressed } from "./engine/input.js";
 import { createCamera, updateCamera } from "./engine/camera.js";
 import { renderMap, mapPixelSize } from "./engine/tilemap.js";
 import { drawPlayer } from "./engine/sprites.js";
 import { drawSprite } from "./engine/pixelSprite.js";
-import { loadGame, saveGame } from "./engine/save.js";
+import { loadGame, saveGame, clearGame } from "./engine/save.js";
 import { loadMap } from "./world/mapLoader.js";
 import { createPlayer, updatePlayer } from "./world/player.js";
 import { getActiveSpawns } from "./world/plantSpawns.js";
@@ -41,6 +42,20 @@ const DELIVERY_VERTRAUEN = 5;
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
+
+// Preload Sprout Lands tile atlases — async, render loop falls back to flat
+// color until ready. Each sheet has a different column count (imageWidth/16).
+loadTileset("grass",     "assets/tiles/sprout/grass.png",        11);
+loadTileset("dirt",      "assets/tiles/sprout/tilled_dirt.png",  11);
+loadTileset("water",     "assets/tiles/sprout/water.png",         4);
+loadTileset("paths",     "assets/tiles/sprout/paths.png",         4);
+loadTileset("bridge",    "assets/tiles/sprout/bridge.png",        5);
+loadTileset("fences",    "assets/tiles/sprout/fences.png",        4);
+loadTileset("house",     "assets/tiles/sprout/wooden_house.png",  7);
+loadTileset("furniture", "assets/tiles/sprout/furniture.png",     9);
+loadTileset("chest",     "assets/tiles/sprout/chest.png",        15);
+loadTileset("biom",      "assets/tiles/sprout/grass_biom.png",    9);
+loadTileset("plants",    "assets/tiles/sprout/plants.png",        6);
 
 const uiRoot = document.getElementById("ui-root");
 
@@ -265,6 +280,11 @@ const hud = createHud(uiRoot, {
   },
   onToggleInventory: () => inventoryPanel.toggle(inventory),
   onOpenBook: () => book.open(progress, time),
+  onNewGame: () => {
+    if (!window.confirm(strings.hud.neuesSpielFrage)) return;
+    clearGame();
+    window.location.reload();
+  },
 });
 hud.update(time);
 hud.setStats({ coins });

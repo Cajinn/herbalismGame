@@ -14,7 +14,7 @@ export function createTitleScreen(root) {
 
   const title = document.createElement("h1");
   title.className = "title-screen__title";
-  title.textContent = strings.titelbildschirm?.titel ?? "Herbs Schmerbs";
+  title.textContent = strings.titelbildschirm?.titel ?? "Herbalism Game";
   box.appendChild(title);
 
   const sub = document.createElement("p");

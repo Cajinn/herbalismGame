@@ -1,4 +1,4 @@
-# Herbs Schmerbs
+# Herbalism Game
 
 Ein gemütliches Pixel-Art-Browserspiel über Schweizer Kräuterheilkunde. Siehe
 [PLAN.md](PLAN.md) für das vollständige Konzept.

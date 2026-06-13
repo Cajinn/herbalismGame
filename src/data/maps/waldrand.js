@@ -1,41 +1,55 @@
-// Waldrand — generated grid (see tools/gen_maps.mjs).
+// Waldrand — forest edge north of the village. A path runs from the village
+// (south exit) up through the tree line toward the deep forest (north exit).
+// The village stream crosses at the south end over a wooden bridge.
+// Sprout Lands tiles:
+//   grass[55] = open meadow ground
+//   grass[56] = alt meadow
+//   dirt[55]  = sandy path fill
+//   water[0]  = stream water
+//   bridge[8] = horizontal bridge plank middle (where path crosses stream)
+//   biom[27]  = pink bush (meadow edge)
+//   biom[28]  = rose bush (forest understorey)
+//   biom[39]  = large green round bush (= "tree" stand-in, most opaque)
 export const waldrand = {
   id: "waldrand",
   name: "Waldrand",
   tileSize: 16,
   biotope: "waldrand",
   legend: {
-    ".": { tile: "wiese", solid: false, color: "#8bc34a" },
-    "#": { tile: "pfad", solid: false, color: "#d7c4a3" },
-    "T": { tile: "baum", solid: true, color: "#2e7d32" },
-    "F": { tile: "waldboden", solid: false, color: "#6b8e4e" },
-    "B": { tile: "strauch", solid: true, color: "#558b2f" },
+    ".": { tile: "wiese",     solid: false, color: "#8bc34a", t: ["grass", 55] },
+    ",": { tile: "wiese2",    solid: false, color: "#7cb342", t: ["grass", 56] },
+    "#": { tile: "pfad",      solid: false, color: "#c8aa7a", t: ["dirt",  55] },
+    "~": { tile: "wasser",    solid: true,  color: "#4fc3f7", t: ["water",  0] },
+    "=": { tile: "bruecke",   solid: false, color: "#c8a06a", t: ["bridge", 8] },
+    "T": { tile: "baum",      solid: true,  color: "#558b2f", t: ["biom",  39] },
+    "B": { tile: "strauch",   solid: true,  color: "#8bc34a", t: ["biom",  27] },
+    "b": { tile: "strauch2",  solid: true,  color: "#8bc34a", t: ["biom",  28] },
   },
   grid: [
-    "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTT",
-    "T..............#.............T",
-    "T....FFF.......#......FFF....T",
-    "T....FFF.......#......FFF....T",
-    "T....FFF.......#......FFF....T",
-    "T..............#.............T",
-    "T..............#.............T",
-    "T..............#.............T",
-    "T..............#.............T",
-    "T..............#.............T",
-    "T...B..........#.........B...T",
-    "T..............#.............T",
-    "T..............#.............T",
-    "T..............#.............T",
-    "T....FFF.......#......FFF....T",
-    "T....FFF.......#......FFF....T",
-    "T....FFF.......#......FFF....T",
-    "T...B..........#.........B...T",
-    "T..............#.............T",
-    "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTTT#TTTTTTTTTTTTTTT",
+    "T..............#...............T",
+    "T....bbb.......#......bbb......T",
+    "T....bbb.......#......bbb......T",
+    "T....bbb.......#......bbb......T",
+    "T..............#...............T",
+    "T.....B........#........B......T",
+    "T..............#...............T",
+    "T..............#...............T",
+    "T..............#...............T",
+    "T...B..........#.........B.....T",
+    "T..............#...............T",
+    "T..............#...............T",
+    "T..............#...............T",
+    "T....bbb.......#......bbb......T",
+    "T....bbb.......#......bbb......T",
+    "T....bbb.......#......bbb......T",
+    "T...B..........#.........B.....T",
+    "T..............#...............T",
+    "TTTTTTTTTTTTTTTT#TTTTTTTTTTTTTTT",
   ],
   playerSpawn: { x: 15, y: 18 },
   exits: [
-    { x: 15, y: 19, target: "dorf", spawn: { x: 15, y: 1 } },
-    { x: 15, y: 0, target: "wald", spawn: { x: 15, y: 18 } },
+    { x: 15, y: 19, target: "dorf",  spawn: { x: 6,  y: 1  } },
+    { x: 15, y: 0,  target: "wald",  spawn: { x: 15, y: 18 } },
   ],
 };
