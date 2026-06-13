@@ -117,7 +117,7 @@ export const SPAWN_POINTS = {
     { id: "dorf-1", x: 12, y: 9,  species: "linde" },
     { id: "dorf-2", x: 11, y: 8,  species: "linde" },
     { id: "dorf-3", x: 22, y: 18, species: "hundspetersilie" },
-    { id: "dorf-4", x: 9,  y: 17, species: "hundspetersilie" },
+    { id: "dorf-4", x: 13, y: 17, species: "hundspetersilie" },
   ],
   alpweide: [
     { id: "alpweide-1",  x: 15, y: 2,  species: "arnika" },
@@ -126,7 +126,7 @@ export const SPAWN_POINTS = {
     { id: "alpweide-4",  x: 12, y: 10, species: "gelberEnzian" },
     { id: "alpweide-5",  x: 5,  y: 10, species: "alpenfrauenmantel" },
     { id: "alpweide-6",  x: 25, y: 12, species: "alpenfrauenmantel" },
-    { id: "alpweide-7",  x: 10, y: 6,  species: "quendel" },
+    { id: "alpweide-7",  x: 12, y: 9,  species: "quendel" },
     { id: "alpweide-8",  x: 20, y: 14, species: "quendel" },
     { id: "alpweide-9",  x: 10, y: 2,  species: "wacholder" },
     { id: "alpweide-10", x: 27, y: 7,  species: "wacholder" },

@@ -96,8 +96,8 @@ export const villagers = {
     nameDe: "Klara",
     rolleDe: "Müllerstochter",
     ailmentThemes: ["kopfschmerz", "fruehjahrsmuedigkeit", "nervositaet"],
-    home:   { map: "dorf", x: 24, y: 5  },
-    square: { map: "dorf", x: 20, y: 8  },
+    home:   { map: "dorf", x: 26, y: 8  },
+    square: { map: "dorf", x: 21, y: 8  },
     tint: 120, // green dress → hue-rotate blue→green
     sprite: humanSprite([null, "#f5cba7", "#27ae60", "#1c1c1c", "#5d4037"]),
     dialog: {
@@ -115,7 +115,7 @@ export const villagers = {
     nameDe: "Res",
     rolleDe: "Schreiner",
     ailmentThemes: ["wunde", "verdauung", "gelenkschmerz2", "prellung"],
-    home:   { map: "dorf", x: 24, y: 14 },
+    home:   { map: "dorf", x: 26, y: 14 },
     square: { map: "dorf", x: 22, y: 12 },
     tint: 300, // purple tunic → hue-rotate toward magenta/violet
     sprite: humanSprite([null, "#f5cba7", "#8e44ad", "#7d3c00", "#5d4037"]),
