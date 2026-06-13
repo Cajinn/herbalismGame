@@ -1,5 +1,8 @@
 // Kräuterhäuschen interior — 20×12 tiles.
-// No interior floor tile in Sprout Lands — floor uses warm color fallback (#d7ccc8).
+// Floor/wall/door use Sprout Lands tiles:
+//   dirt[12]      = plain sandy earthen tile (fully solid, warm tan) → rustic hut floor
+//   house[15]     = cream brick/plaster interior wall face           → wand
+//   house[10]     = door mid panel (brown door with handle)          → deur
 // Each station gets a distinct recognisable furniture sprite.
 //
 // furniture[12]  = green lamp/potted plant     → dachboden (drying rack)
@@ -16,9 +19,9 @@ export const kraeuterhaeuschen = {
   tileSize: 16,
   biotope: "garten",
   legend: {
-    ".": { tile: "boden",     solid: false, color: "#d7ccc8" },
-    "W": { tile: "wand",      solid: true,  color: "#5d4037" },
-    "F": { tile: "deur",      solid: false, color: "#a1887f" },
+    ".": { tile: "boden",     solid: false, color: "#d7ccc8", t: ["dirt",  12] },
+    "W": { tile: "wand",      solid: true,  color: "#5d4037", t: ["house", 15] },
+    "F": { tile: "deur",      solid: false, color: "#a1887f", t: ["house", 10] },
     "D": { tile: "dachboden", solid: true,  color: "#8d6e63", t: ["furniture", 12] },
     "H": { tile: "herd",      solid: true,  color: "#616161", t: ["furniture", 32] },
     "M": { tile: "moerser",   solid: true,  color: "#8d6e63", t: ["furniture", 30] },

@@ -6,7 +6,7 @@
 //   biom[39]  = large round bush (= alpine shrub)
 //   house[5/6/12/13/19/20] = hut roof  house[0/7/14] = hut walls
 //   dirt[55]  = path through alm
-//   "R" = rock (color-only, biom[40] too transparent)
+//   biom[41]  = large grey rock (solid coverage, ~50% fill — reads as cliff/fels)
 export const alpweide = {
   id: "alpweide",
   name: "Alpweide",
@@ -16,7 +16,7 @@ export const alpweide = {
     ".": { tile: "alm",     solid: false, color: "#bcd98f", t: ["grass", 55] },
     ",": { tile: "alm2",    solid: false, color: "#c5e0a0", t: ["grass", 56] },
     "#": { tile: "pfad",    solid: false, color: "#c8aa7a", t: ["dirt",  55], terrain: "path" },
-    "R": { tile: "fels",    solid: true,  color: "#9e9e9e"                   },
+    "R": { tile: "fels",    solid: true,  color: "#9e9e9e", t: ["biom",  41] },
     "B": { tile: "strauch", solid: true,  color: "#8bc34a", t: ["biom",  39] },
     // Alpine hut — roof (house cols 5-6)
     "r": { tile: "dach_tl", solid: true,  color: "#8d6039", t: ["house",  5] },
