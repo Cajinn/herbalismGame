@@ -12,7 +12,7 @@ export const wald = {
   biotope: "wald",
   legend: {
     ".": { tile: "waldboden", solid: false, color: "#3f5e2a", t: ["grass", 66] },
-    "#": { tile: "pfad",      solid: false, color: "#c9b896", t: ["dirt",  55] },
+    "#": { tile: "pfad",      solid: false, color: "#c9b896", t: ["dirt",  55], terrain: "path" },
     "T": { tile: "baum",      solid: true,  color: "#1b4d1f", t: ["biom",  39] },
     "F": { tile: "lichtung",  solid: false, color: "#74945a", t: ["grass", 55] },
     "B": { tile: "strauch",   solid: true,  color: "#2e7d32", t: ["biom",  27] },

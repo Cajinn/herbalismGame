@@ -12,8 +12,8 @@ export const garten = {
   legend: {
     ".": { tile: "rasen",  solid: false, color: "#7cb342", t: ["grass", 55] },
     ",": { tile: "gras2",  solid: false, color: "#82c044", t: ["grass", 56] },
-    "#": { tile: "pfad",   solid: false, color: "#c8aa7a", t: ["dirt",  55] },
-    "E": { tile: "beet",   solid: false, color: "#8d6e4a", t: ["dirt",  28] },
+    "#": { tile: "pfad",   solid: false, color: "#c8aa7a", t: ["dirt",  55], terrain: "path" },
+    "E": { tile: "beet",   solid: false, color: "#8d6e4a", t: ["dirt",  28], terrain: "bed" },
     "Z": { tile: "zaun_h", solid: true,  color: "#a07848", t: ["fences",  2] },
     "z": { tile: "zaun_v", solid: true,  color: "#a07848", t: ["fences",  0] },
     "c": { tile: "zaun_c", solid: true,  color: "#a07848", t: ["fences", 12] },

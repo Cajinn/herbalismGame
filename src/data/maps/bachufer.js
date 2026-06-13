@@ -16,7 +16,7 @@ export const bachufer = {
   legend: {
     ".": { tile: "ufer",    solid: false, color: "#7cb342", t: ["grass", 55] },
     ",": { tile: "ufer2",   solid: false, color: "#82c044", t: ["grass", 56] },
-    "#": { tile: "pfad",    solid: false, color: "#c8aa7a", t: ["dirt",  55] },
+    "#": { tile: "pfad",    solid: false, color: "#c8aa7a", t: ["dirt",  55], terrain: "path" },
     "O": { tile: "wasser",  solid: true,  color: "#4fc3f7", t: ["water",  0] },
     "B": { tile: "strauch", solid: true,  color: "#8bc34a", t: ["biom",  27] },
     "T": { tile: "baum",    solid: true,  color: "#8bc34a", t: ["biom",  28] },

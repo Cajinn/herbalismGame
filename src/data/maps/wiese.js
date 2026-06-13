@@ -11,7 +11,7 @@ export const wiese = {
   legend: {
     ".": { tile: "wiese",   solid: false, color: "#9ccc65", t: ["grass", 56] },
     ",": { tile: "wiese2",  solid: false, color: "#7cb342", t: ["grass", 55] },
-    "#": { tile: "wegrand", solid: false, color: "#c8aa7a", t: ["dirt",  55] },
+    "#": { tile: "wegrand", solid: false, color: "#c8aa7a", t: ["dirt",  55], terrain: "path" },
     "B": { tile: "strauch", solid: true,  color: "#8bc34a", t: ["biom",  27] },
     "b": { tile: "strauch2",solid: true,  color: "#8bc34a", t: ["biom",  28] },
     "T": { tile: "baum",    solid: true,  color: "#558b2f", t: ["biom",  39] },

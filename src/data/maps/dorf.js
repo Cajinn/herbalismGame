@@ -27,7 +27,7 @@ export const dorf = {
     // Ground
     ".": { tile: "gras",    solid: false, color: "#7cb342", t: ["grass", 55] },
     ",": { tile: "gras2",   solid: false, color: "#82c044", t: ["grass", 56] },
-    "#": { tile: "pfad",    solid: false, color: "#c8aa7a", t: ["dirt",  55] },
+    "#": { tile: "pfad",    solid: false, color: "#c8aa7a", t: ["dirt",  55], terrain: "path" },
     // Water & bridge
     "~": { tile: "wasser",  solid: true,  color: "#4fc3f7", t: ["water",  0] },
     "=": { tile: "bruecke", solid: false, color: "#c8a06a", t: ["bridge", 8] },
@@ -35,7 +35,7 @@ export const dorf = {
     "T": { tile: "baum",    solid: true,  color: "#8bc34a", t: ["biom", 28] },
     "B": { tile: "strauch", solid: true,  color: "#8bc34a", t: ["biom", 27] },
     // Garden beds
-    "E": { tile: "beet",    solid: false, color: "#8d6e4a", t: ["dirt",  28] },
+    "E": { tile: "beet",    solid: false, color: "#8d6e4a", t: ["dirt",  28], terrain: "bed" },
     // Fences
     "f": { tile: "zaun_h",  solid: true,  color: "#a07848", t: ["fences",  2] },
     "|": { tile: "zaun_v",  solid: true,  color: "#a07848", t: ["fences",  0] },
