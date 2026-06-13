@@ -43,8 +43,9 @@ export const bachufer = {
     "T................OO...........T",
     "TTTTTTTTTTTTTTTTOOOTTTTTTTTTTTT",
   ],
-  playerSpawn: { x: 1, y: 10 },
+  playerSpawn: { x: 29, y: 10 },
   exits: [
-    { x: 0, y: 10, target: "dorf", spawn: { x: 29, y: 11 } },
+    // East edge ← back to the village (you arrive here walking west out of dorf).
+    { x: 30, y: 10, target: "dorf", spawn: { x: 1, y: 11 } },
   ],
 };

@@ -101,9 +101,9 @@ export const dorf = {
   exits: [
     { x: 6,  y: 0,  target: "waldrand",         spawn: { x: 15, y: 18 } },
     { x: 29, y: 11, target: "wiese",             spawn: { x: 1,  y: 10 } },
-    { x: 0,  y: 11, target: "bachufer",          spawn: { x: 28, y: 10 } },
+    { x: 0,  y: 11, target: "bachufer",          spawn: { x: 29, y: 10 } },
     { x: 22, y: 7,  target: "kraeuterhaeuschen", spawn: { x: 9,  y: 10 } },
-    { x: 6,  y: 21, target: "garten",            spawn: { x: 15, y: 1  } },
+    { x: 6,  y: 21, target: "garten",            spawn: { x: 14, y: 1  } },
   ],
   stations: [
     { x: 9,  y: 6, type: "dorfladen"     },

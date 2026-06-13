@@ -27,7 +27,7 @@ export const wiese = {
     "T............................T",
     "T,...........................T",
     "T............................T",
-    "T#############################",
+    "##############################",
     "T,...........................T",
     "T............................T",
     "T,...........................T",
@@ -38,8 +38,9 @@ export const wiese = {
     "T............................T",
     "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   ],
-  playerSpawn: { x: 28, y: 10 },
+  playerSpawn: { x: 1, y: 10 },
   exits: [
-    { x: 29, y: 10, target: "dorf", spawn: { x: 0, y: 11 } },
+    // West edge ← back to the village (you arrive here walking east out of dorf).
+    { x: 0, y: 10, target: "dorf", spawn: { x: 28, y: 11 } },
   ],
 };

@@ -233,7 +233,7 @@ export const strings = {
   },
   titelbildschirm: {
     titel: "Herbalism Game",
-    untertitel: "Ein Kräuterspiel aus den Schweizer Alpen",
+    untertitel: "Ein Kräuterspiel aus der Schweiz",
     starten: "Neu beginnen",
     weiter: "Weiterspielen",
     disclaimer: "Dieses Spiel vermittelt traditionelles Pflanzenwissen — es ersetzt keinen Arztbesuch und keine botanische Ausbildung. Wildkräuter immer sicher bestimmen, bevor du sie verwendest.",

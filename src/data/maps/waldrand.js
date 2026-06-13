@@ -26,7 +26,7 @@ export const waldrand = {
     "b": { tile: "strauch2",  solid: true,  color: "#8bc34a", t: ["biom",  28] },
   },
   grid: [
-    "TTTTTTTTTTTTTTTT#TTTTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTTTT",
     "T..............#...............T",
     "T....bbb.......#......bbb......T",
     "T....bbb.......#......bbb......T",
@@ -45,7 +45,7 @@ export const waldrand = {
     "T....bbb.......#......bbb......T",
     "T...B..........#.........B.....T",
     "T..............#...............T",
-    "TTTTTTTTTTTTTTTT#TTTTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTTTT",
   ],
   playerSpawn: { x: 15, y: 18 },
   exits: [

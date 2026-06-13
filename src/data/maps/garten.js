@@ -43,9 +43,10 @@ export const garten = {
     "z,.........HHHHHH............z",
     "cZZZZZZZZZHHHHHHZZZZZZZZZZZZZc",
   ],
-  playerSpawn: { x: 15, y: 1 },
+  playerSpawn: { x: 14, y: 1 },
   exits: [
-    { x: 15, y: 0, target: "dorf", spawn: { x: 6, y: 20 } },
+    // North gate in the fence (path runs up col 14) ← back to the village.
+    { x: 14, y: 0, target: "dorf", spawn: { x: 6, y: 20 } },
   ],
   beds: [
     { bedId: "bed-1", x: 5,  y: 7  },

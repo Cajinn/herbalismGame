@@ -498,4 +498,17 @@ if (location.search.includes("test")) {
       render();
     }
   };
+  // Read-only state accessor for headless tests (map id + player tile).
+  window.__state = () => ({
+    map: map.id,
+    tx: Math.floor((player.x + player.width / 2) / map.tileSize),
+    ty: Math.floor((player.y + player.height / 2) / map.tileSize),
+  });
+  // Place the player on a known tile (testing only; mirrors an exit spawn).
+  window.__warp = (tx, ty) => {
+    player.x = tx * map.tileSize;
+    player.y = ty * map.tileSize;
+    updateCamera(camera, player, mapWidth, mapHeight);
+    render();
+  };
 }
