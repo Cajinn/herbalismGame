@@ -6,6 +6,7 @@ const ACTIONS_BY_KEY = {
   ArrowLeft: "left", a: "left", A: "left",
   ArrowRight: "right", d: "right", D: "right",
   e: "interact", E: "interact", Enter: "interact", " ": "interact",
+  m: "map", M: "map",
 };
 
 const pressed = new Set();

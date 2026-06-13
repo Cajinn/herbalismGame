@@ -28,6 +28,7 @@ import { createShopDialog } from "./ui/shop.js";
 import { createGardenDialog } from "./ui/garden.js";
 import { createVillagerDialog } from "./ui/dialog.js";
 import { createBoardDialog } from "./ui/board.js";
+import { createMapPanel } from "./ui/map.js";
 import { createDepositPanel } from "./ui/deposit.js";
 import { createTitleScreen } from "./ui/title.js";
 import { createVillagerStatus, tickVillagerStatus, makeVillagerSick } from "./sim/villagerStatus.js";
@@ -285,6 +286,7 @@ const hud = createHud(uiRoot, {
   },
   onToggleInventory: () => inventoryPanel.toggle(inventory),
   onOpenBook: () => book.open(progress, time),
+  onOpenMap: () => mapPanel.toggle(map.id),
   onNewGame: () => {
     if (!window.confirm(strings.hud.neuesSpielFrage)) return;
     clearGame();
@@ -394,6 +396,8 @@ const villagerDialog = createVillagerDialog(uiRoot, {
 
 const boardDialog = createBoardDialog(uiRoot);
 
+const mapPanel = createMapPanel(uiRoot);
+
 const depositPanel = createDepositPanel(uiRoot, {
   onDeposit(requestId, item) {
     const request = requests.active.find((r) => r.id === requestId);
@@ -430,11 +434,21 @@ if (!introSeen) {
 
 function update(dt) {
   if (titleScreen.isVisible()) return;
-  if (
+
+  const modalOpen =
     identifyDialog.isOpen() || workshopDialog.isOpen() || book.isOpen() ||
     shopDialog.isOpen() || gardenDialog.isOpen() ||
-    villagerDialog.isOpen() || boardDialog.isOpen() || depositPanel.isOpen()
-  ) return;
+    villagerDialog.isOpen() || boardDialog.isOpen() || depositPanel.isOpen() ||
+    mapPanel.isOpen();
+
+  // M toggles the overview map: always closes it, but only opens it when no
+  // other overlay is up so panels never stack.
+  if (consumeJustPressed("map")) {
+    if (mapPanel.isOpen() || !modalOpen) mapPanel.toggle(map.id);
+    return;
+  }
+
+  if (modalOpen) return;
 
   updatePlayer(player, map, dt);
   checkExit();
