@@ -4,7 +4,7 @@ import { startLoop } from "./engine/loop.js";
 import { initInput, consumeJustPressed } from "./engine/input.js";
 import { createCamera, updateCamera } from "./engine/camera.js";
 import { renderMap, mapPixelSize } from "./engine/tilemap.js";
-import { drawPlayer } from "./engine/sprites.js";
+import { drawPlayer, drawCharacter } from "./engine/sprites.js";
 import { drawSprite } from "./engine/pixelSprite.js";
 import { loadGame, saveGame, clearGame } from "./engine/save.js";
 import { loadMap } from "./world/mapLoader.js";
@@ -477,7 +477,7 @@ function render() {
   for (const npc of getActiveNpcs(map.id, time, villagerStatus)) {
     const screenX = (npc.x * map.tileSize - camera.x) * SCALE;
     const screenY = (npc.y * map.tileSize - camera.y) * SCALE;
-    drawSprite(ctx, npc.sprite, screenX, screenY, SCALE);
+    drawCharacter(ctx, screenX, screenY, { direction: "down", tint: npc.tint }, map.tileSize, SCALE);
   }
 
   drawPlayer(ctx, player, camera, map.tileSize, SCALE);
