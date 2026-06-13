@@ -485,3 +485,17 @@ function render() {
 }
 
 startLoop(update, render);
+
+// Debug/testing hook: requestAnimationFrame is paused in backgrounded/headless
+// browser tabs, which freezes the loop and makes automated testing impossible.
+// With `?test` in the URL, expose a manual frame stepper so a test harness can
+// drive the game (dispatch a key, then __tick(n) to advance n frames). No effect
+// on normal play — the hook is never installed without the query flag.
+if (location.search.includes("test")) {
+  window.__tick = (frames = 1, dt = 1 / 60) => {
+    for (let i = 0; i < frames; i++) {
+      update(dt);
+      render();
+    }
+  };
+}
