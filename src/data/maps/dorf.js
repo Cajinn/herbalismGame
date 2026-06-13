@@ -5,7 +5,9 @@
 // North path runs down col 6. E-W road at row 11.
 // Herbalist house 4w at cols 20-27, rows 2-7 (roof rows 2-4, wall rows 5-7).
 // Shop 3w at cols 9-11, rows 3-7 (roof rows 3-4, wall rows 5-7).
-// Notice board (A) col 16, row 7. Door (D) cols 22-23 row 7 → kraeuterhaeuschen.
+// Door (d/D) cols 22-23 row 7 → kraeuterhaeuschen. Player spawn from cottage: (22,8).
+// Notice board (A) col 20 row 8 — just left of cottage door.
+// Deposit box  (C) col 24 row 8 — just right of cottage door.
 // Garden fenced plot cols 13-23, rows 12-15. Garten exit col 6 row 21 (south path end).
 //
 // Tile key (Sprout Lands):
@@ -65,8 +67,9 @@ export const dorf = {
     "O": { tile: "vill_w",  solid: true,  color: "#a1887f", t: ["house",  7] },
     "i": { tile: "vill_b",  solid: true,  color: "#9a7060", t: ["house", 14] },
     // Stations — use fully opaque tiles for visibility
-    "S": { tile: "laden",   solid: true,  color: "#c8a844", t: ["chest", 28] },
-    "A": { tile: "brett",   solid: true,  color: "#8d6e63", t: ["furniture", 21] },
+    "S": { tile: "laden",    solid: true, color: "#c8a844", t: ["chest", 28] },
+    "A": { tile: "brett",    solid: true, color: "#8d6e63", t: ["furniture", 21] },
+    "C": { tile: "abgabe",   solid: true, color: "#a07848", t: ["chest",  0] },
   },
 
   // 30 cols × 22 rows
@@ -78,8 +81,8 @@ export const dorf = {
     "......#..mMm.....B..vVvVvVvV..",  // 4: shop roof mid + house roof bot
     ".B....#..pPp........wWwWwWwW..",  // 5: shop wall + house wall top
     "......#..qQq........gGgGgGgG..",  // 6: shop wall + house wall window
-    "......#..QQQ....A...xXdDxX....",  // 7: shop base, notice board, door cols 22-23
-    ".B....#..........B............",  // 8: open
+    "......#..QQQ........xXdDxX....",  // 7: shop base, door cols 22-23
+    ".B....#..........B..A...C.....",  // 8: notice board (col 20), deposit box (col 24)
     "......#................B......",  // 9: open
     "......#.......................",  // 10: open — NOTE: 29 chars, pad below
     "##############################",  // 11: E/W exits col 0 & col 29
@@ -104,6 +107,7 @@ export const dorf = {
   ],
   stations: [
     { x: 9,  y: 6, type: "dorfladen"     },
-    { x: 16, y: 7, type: "anschlagbrett" },
+    { x: 20, y: 8, type: "anschlagbrett" },
+    { x: 24, y: 8, type: "abgabebox"     },
   ],
 };

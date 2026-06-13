@@ -28,6 +28,7 @@ import { createShopDialog } from "./ui/shop.js";
 import { createGardenDialog } from "./ui/garden.js";
 import { createVillagerDialog } from "./ui/dialog.js";
 import { createBoardDialog } from "./ui/board.js";
+import { createDepositPanel } from "./ui/deposit.js";
 import { createTitleScreen } from "./ui/title.js";
 import { createVillagerStatus, tickVillagerStatus, makeVillagerSick } from "./sim/villagerStatus.js";
 import { strings } from "./data/strings.de.js";
@@ -59,7 +60,9 @@ loadTileset("plants",    "assets/tiles/sprout/plants.png",        6);
 
 const uiRoot = document.getElementById("ui-root");
 
-let map = loadMap("dorf");
+// New games start inside the cottage (kraeuterhaeuschen).
+// Saved games restore the stored map in the block below.
+let map = loadMap("kraeuterhaeuschen");
 
 const player = createPlayer(map);
 let time = createTime();
@@ -217,6 +220,8 @@ function updateInteractables() {
         shopDialog.open(coins);
       } else if (nearbyStation.type === "anschlagbrett") {
         boardDialog.open(requests);
+      } else if (nearbyStation.type === "abgabebox") {
+        depositPanel.open(requests, inventory);
       } else {
         workshopDialog.open(nearbyStation.type, inventory, processingState, time, zutaten);
       }
@@ -389,6 +394,32 @@ const villagerDialog = createVillagerDialog(uiRoot, {
 
 const boardDialog = createBoardDialog(uiRoot);
 
+const depositPanel = createDepositPanel(uiRoot, {
+  onDeposit(requestId, item) {
+    const request = requests.active.find((r) => r.id === requestId);
+    if (!request) return "mismatch";
+    const ailment = ailments[request.ailmentId];
+    const result = evaluateDelivery(request, ailment, item);
+    if (result === "match") {
+      removeItem(inventory, item.species, item.teil, item.processed);
+      addVertrauen(reputation, request.villagerId, DELIVERY_VERTRAUEN);
+      coins += DELIVERY_COINS;
+      recordDelivery(progress, item.species);
+      resolveRequest(requests, requestId);
+      hud.setStats({ coins });
+      hud.showMessage(strings.meldungen.geliefert);
+      persist();
+    } else if (result === "toxic") {
+      removeItem(inventory, item.species, item.teil, item.processed);
+      makeVillagerSick(villagerStatus, request.villagerId, 3, item.species);
+      addVertrauen(reputation, request.villagerId, -DELIVERY_VERTRAUEN * 2);
+      resolveRequest(requests, requestId);
+      persist();
+    }
+    return result;
+  },
+});
+
 const titleScreen = createTitleScreen(uiRoot);
 if (!introSeen) {
   titleScreen.show(() => {
@@ -402,7 +433,7 @@ function update(dt) {
   if (
     identifyDialog.isOpen() || workshopDialog.isOpen() || book.isOpen() ||
     shopDialog.isOpen() || gardenDialog.isOpen() ||
-    villagerDialog.isOpen() || boardDialog.isOpen()
+    villagerDialog.isOpen() || boardDialog.isOpen() || depositPanel.isOpen()
   ) return;
 
   updatePlayer(player, map, dt);

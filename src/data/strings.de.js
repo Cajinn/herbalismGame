@@ -101,6 +101,7 @@ export const strings = {
     bett:          "[E] Schlafen",
     dorfladen:     "[E] Dorfladen",
     anschlagbrett: "[E] Anschlagbrett",
+    abgabebox:     "[E] Abgabebox – Mittel einlegen",
     beet:          "[E] Beet bewirtschaften",
   },
   werkstatt: {
@@ -184,6 +185,16 @@ export const strings = {
     geben: "Geben",
     keineProdukte: "Kein verarbeitetes Mittel im Inventar.",
     ablehnung: "Schau im Buch nach, welche Mittel bei dieser Beschwerde helfen.",
+  },
+  abgabe: {
+    titel: "Abgabebox",
+    keineAnfragen: "Keine offenen Anfragen im Dorf.",
+    keineProdukte: "Kein verarbeitetes Mittel im Inventar.",
+    einlegen: "Einlegen",
+    fuerAnfrage: (name, ailment) => `Für ${name}: ${ailment}`,
+    erfolgreich: "Mittel eingelegt — Auftrag erledigt!",
+    fehlschlag: "Dieses Mittel passt nicht zur Anfrage.",
+    toxisch: (name) => `Achtung: ${name} ist krank geworden durch dein Mittel!`,
   },
   quest: {
     alpweideGesperrt: "Dieser Pfad führt zur Alpweide — aber Frau Margrit sagt, du seist noch nicht bereit.",
