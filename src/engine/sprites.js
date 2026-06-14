@@ -12,7 +12,34 @@
 
 const SRC_FRAME = 48; // source pixels per frame
 
+// Source pixel row where the character's feet sit (confirmed from sprite bounds).
+// Used to anchor the character so feet land on the tile ground line.
+const FEET_SRC_Y = 31;
+
 const DIR_ROW = { down: 0, up: 1, right: 2, left: 3 };
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PixelLab per-character images.
+// Each character has 8 direction images (one PNG per direction).
+// Keyed by villager ID (string matching villagers.js keys).
+// Directions: south, north, east, west, south-east, south-west, north-east, north-west
+// ──────────────────────────────────────────────────────────────────────────────
+const _plChars = new Map(); // villager key → { dir: HTMLImageElement }
+
+// Call from main.js after downloading PixelLab character images.
+// dirSrcs: { south: url, north: url, east: url, west: url, ... }
+export function loadPlCharacter(key, dirSrcs) {
+  const imgs = {};
+  for (const [dir, src] of Object.entries(dirSrcs)) {
+    const img = new Image();
+    img.src = src;
+    imgs[dir] = img;
+  }
+  _plChars.set(key, imgs);
+}
+
+// PixelLab direction name from the 4-direction game convention.
+const _plDir = { down: "south", up: "north", right: "east", left: "west" };
 
 // Walk-cycle columns (excluding idle at col 0).
 // We step through cols 1, 2, 3 while moving.
@@ -34,20 +61,22 @@ _img.src = "assets/tiles/sprout/character.png";
 const BODY_COLOR = "#5d4037";
 const FACE_COLOR = "#3e2723";
 
-// Cache of tinted offscreen canvases, keyed by hue-rotation degrees (number).
-// Populated lazily on first use per tint value; never rebuilt after that.
+// Cache of tinted offscreen canvases, keyed by CSS colour string.
+// Populated lazily on first use per colour value; never rebuilt after that.
 const _tintCache = new Map();
 
 /**
- * Return a tinted copy of the character sheet as an OffscreenCanvas (or a
- * regular Canvas in environments that don't support OffscreenCanvas).
- * The result is cached by `deg` so the expensive filter pass runs only once.
+ * Return a colour-overlaid copy of the character sheet as an OffscreenCanvas.
+ * Strategy: draw the base sprite, then composite a solid-colour fill over it
+ * using `source-atop` at alpha 0.62. This saturates the clothing (cream base →
+ * vivid colour) while keeping enough original luminance for the skin to remain
+ * readable. Cached by colour string — one canvas per villager, built once.
  * Returns null if the source image is not yet loaded.
  */
-function _getTintedSheet(deg) {
+function _getTintedSheet(colour) {
   if (!_img.complete || _img.naturalWidth === 0) return null;
 
-  if (_tintCache.has(deg)) return _tintCache.get(deg);
+  if (_tintCache.has(colour)) return _tintCache.get(colour);
 
   const w = _img.naturalWidth;
   const h = _img.naturalHeight;
@@ -63,11 +92,22 @@ function _getTintedSheet(deg) {
   }
 
   const offCtx = offscreen.getContext("2d");
-  offCtx.filter = `hue-rotate(${deg}deg)`;
-  offCtx.drawImage(_img, 0, 0);
-  offCtx.filter = "none";
 
-  _tintCache.set(deg, offscreen);
+  // Pass 1: base sprite (full opacity).
+  offCtx.drawImage(_img, 0, 0);
+
+  // Pass 2: solid colour overlay, confined to existing sprite pixels.
+  // `source-atop` draws only where the destination already has alpha > 0,
+  // so transparent regions stay transparent. Alpha 0.62 gives a strong,
+  // clearly distinct hue while keeping skin tones recognisably warm.
+  offCtx.globalCompositeOperation = "source-atop";
+  offCtx.globalAlpha = 0.62;
+  offCtx.fillStyle = colour;
+  offCtx.fillRect(0, 0, w, h);
+  offCtx.globalAlpha = 1;
+  offCtx.globalCompositeOperation = "source-over";
+
+  _tintCache.set(colour, offscreen);
   return offscreen;
 }
 
@@ -77,17 +117,42 @@ function _getTintedSheet(deg) {
  * @param {CanvasRenderingContext2D} ctx
  * @param {number} screenX  — screen-pixel X of the top-left of the tile footprint
  * @param {number} screenY  — screen-pixel Y of the top-left of the tile footprint
- * @param {{ direction?: string, moving?: boolean, tint?: number }} opts
+ * @param {{ direction?: string, moving?: boolean, colour?: string }} opts
  *   direction: "down"|"up"|"left"|"right"  (default "down")
  *   moving:    boolean                      (default false)
- *   tint:      hue-rotation degrees         (default undefined → untinted)
+ *   colour:    CSS colour string            (default undefined → untinted player)
  * @param {number} tileSize — logical tile size in world pixels
  * @param {number} scale    — render scale factor
  */
 export function drawCharacter(ctx, screenX, screenY, opts, tileSize, scale) {
-  const direction = opts.direction ?? "down";
-  const moving    = opts.moving    ?? false;
-  const tint      = opts.tint;       // undefined → use raw sheet
+  const direction  = opts.direction  ?? "down";
+  const moving     = opts.moving     ?? false;
+  const colour     = opts.colour;
+  const plCharKey  = opts.plCharKey; // villager ID for PixelLab per-character image
+
+  // --- PixelLab per-character image (preferred when available) ---
+  if (plCharKey) {
+    const dirImages = _plChars.get(plCharKey);
+    if (dirImages) {
+      const plDir = _plDir[direction] ?? "south";
+      const img = dirImages[plDir];
+      if (img?.complete && img.naturalWidth > 0) {
+        const destSize = SRC_FRAME * scale;
+        const footX = screenX + Math.round((tileSize * scale) / 2);
+        const footY = screenY + Math.round(tileSize * scale);
+        const destX = footX - Math.round(destSize / 2);
+        const destY = footY - Math.round((FEET_SRC_Y / SRC_FRAME) * destSize);
+        const prev = ctx.imageSmoothingEnabled;
+        ctx.imageSmoothingEnabled = false;
+        // PixelLab canvas is ~40% taller than SRC_FRAME; draw at destSize square
+        // to match the SL sheet footprint — the extra canvas height is empty space.
+        ctx.drawImage(img, destX, destY, destSize, destSize);
+        ctx.imageSmoothingEnabled = prev;
+        return;
+      }
+      // image not loaded yet — fall through to SL sheet below
+    }
+  }
 
   // --- fallback: image not yet loaded ---
   if (!_img.complete || _img.naturalWidth === 0) {
@@ -110,22 +175,24 @@ export function drawCharacter(ctx, screenX, screenY, opts, tileSize, scale) {
 
   // --- resolve source sheet (tinted or raw) ---
   let sheet;
-  if (tint !== undefined) {
-    sheet = _getTintedSheet(tint);
+  if (colour !== undefined) {
+    sheet = _getTintedSheet(colour);
     if (!sheet) return; // image not ready (shouldn't happen given check above)
   } else {
     sheet = _img;
   }
 
   // --- sprite blit ---
-  // Draw the character ~1.5 tiles tall (48 source px → 1.5× tileSize on screen).
-  // Anchor: bottom-center of the character's tile footprint.
-  const destSize = Math.round(tileSize * scale * 1.5);
+  // Draw the frame at 1:1 native scale (SRC_FRAME × render-scale).
+  // The source frame (48px) covers a 3×3 tile area; the visible character body
+  // is 14×16 px within it → renders as ≈1 tile wide × 1 tile tall at SCALE=3.
+  // Anchor: feet (source y=31) land exactly on the tile's ground line (footY).
+  const destSize = SRC_FRAME * scale;
   const footX = screenX + Math.round((tileSize * scale) / 2);
   const footY = screenY + Math.round(tileSize * scale);
 
   const destX = footX - Math.round(destSize / 2);
-  const destY = footY - destSize;
+  const destY = footY - Math.round((FEET_SRC_Y / SRC_FRAME) * destSize);
 
   const row = DIR_ROW[direction] ?? 0;
   const col = moving ? WALK_COLS[_walkFrame] : 0;
@@ -165,6 +232,6 @@ export function drawPlayer(ctx, player, camera, tileSize, scale) {
   drawCharacter(ctx, screenX, screenY, {
     direction: player.direction,
     moving:    player.moving,
-    // no tint → player uses the raw sheet
+    // no colour → player uses the raw (untinted) sheet
   }, tileSize, scale);
 }

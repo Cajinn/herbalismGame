@@ -1,11 +1,12 @@
 import { SCALE, VIEWPORT_TILES_X, VIEWPORT_TILES_Y } from "./engine/config.js";
 import { loadTileset, drawTile } from "./engine/tileset.js";
+import { loadObject, renderObjects } from "./engine/objects.js";
 import { startLoop } from "./engine/loop.js";
 import { initInput, consumeJustPressed } from "./engine/input.js";
 import { createCamera, updateCamera } from "./engine/camera.js";
 import { renderMap, mapPixelSize } from "./engine/tilemap.js";
 import { renderBuildings } from "./engine/buildings.js";
-import { drawPlayer, drawCharacter } from "./engine/sprites.js";
+import { drawPlayer, drawCharacter, loadPlCharacter } from "./engine/sprites.js";
 import { herbTile } from "./data/herbTiles.js";
 import { loadGame, saveGame, clearGame } from "./engine/save.js";
 import { loadMap } from "./world/mapLoader.js";
@@ -62,6 +63,66 @@ loadTileset("furniture", "assets/tiles/sprout/furniture.png",     9);
 loadTileset("chest",     "assets/tiles/sprout/chest.png",        15);
 loadTileset("biom",      "assets/tiles/sprout/grass_biom.png",    9);
 loadTileset("plants",    "assets/tiles/sprout/plants.png",        6);
+
+// PixelLab Wang tilesets (4 cols × 4 rows = 16 tiles each).
+// pl_gp: grass↔path transitions. Lower=dirt path, upper=lush grass.
+// pl_gw: grass↔water transitions. Lower=brook water, upper=lush grass.
+// pl_gt: grass↔tilled transitions. Lower=tilled earth, upper=lush grass.
+loadTileset("pl_gp",     "assets/tiles/pixellab/grass_path.png",   4);
+loadTileset("pl_gw",     "assets/tiles/pixellab/grass_water.png",  4);
+loadTileset("pl_gt",     "assets/tiles/pixellab/grass_tilled.png", 4);
+
+// PixelLab map objects (transparent-background PNGs).
+loadObject("tree_oak",      "assets/objects/tree_oak.png");
+loadObject("hedge",         "assets/objects/hedge.png");
+loadObject("well",          "assets/objects/well.png");
+loadObject("notice_board",  "assets/objects/notice_board.png");
+loadObject("deposit_box",   "assets/objects/deposit_box.png");
+loadObject("drying_rack",   "assets/objects/drying_rack.png");
+
+// PixelLab per-character sprites (4 cardinal directions each).
+// Keys match villager id fields in villagers.js; "herbalist" reserved for player.
+const _charDirs = (key) => ({
+  south: `assets/chars/${key}_south.png`,
+  north: `assets/chars/${key}_north.png`,
+  east:  `assets/chars/${key}_east.png`,
+  west:  `assets/chars/${key}_west.png`,
+});
+loadPlCharacter("herbalist", _charDirs("herbalist"));
+loadPlCharacter("vreni",     _charDirs("vreni"));
+loadPlCharacter("klara",     _charDirs("klara"));
+loadPlCharacter("anna",      _charDirs("anna"));
+loadPlCharacter("sophie",    _charDirs("sophie"));
+loadPlCharacter("ueli",      _charDirs("ueli"));
+loadPlCharacter("res",       _charDirs("res"));
+loadPlCharacter("margrit",   _charDirs("margrit"));
+
+// PixelLab per-species herb sprites. Loaded for every species; missing PNGs
+// (404) leave naturalWidth===0 and fall back to the SL biom tile silently.
+const _herbSprites = new Map();
+[
+  // batch 1 — downloaded
+  "kamille", "ringelblume", "lavendel", "pfefferminze", "holunder",
+  "schafgarbe", "arnika", "wacholder", "gundelrebe", "frauenmantel",
+  "baerlauch", "baldrian", "johanniskraut", "loewenzahn", "spitzwegerich",
+  // batch 2 — meadow/garden flowers
+  "maigloeckchen", "herbstzeitlose", "gaensebluemchen", "brennnessel", "veilchen",
+  "huflattich", "rotklee", "malve", "wegwarte", "koenigskerze",
+  "giersch", "hundskamille", "jakobskreuzkraut", "schluesselblume", "roterfingerhut", "salbei",
+  // batch 3 — trees, shrubs, waterside
+  "hagebutte", "weissdorn", "schlehe", "birke", "fichte", "attich", "pestwurz",
+  "beinwell", "weide", "linde", "zitrone", "gefleckterSchierling", "hundspetersilie",
+  "madesüss", "zwiebel", "quendel",
+  // batch 4 — alpine + culinary
+  "thymian", "zitronenmelisse", "gelberEnzian", "alpenfrauenmantel",
+  "lungenkraut", "blauerEnzian", "akelei", "odermennig", "waldmeister",
+  "iris", "weissklee", "ysop",
+  "baldrian_alt", "holunder_alt", "loewenzahn_alt", "brennnessel_alt",
+].forEach((key) => {
+  const img = new Image();
+  img.src = `assets/objects/herbs/${key}.png`;
+  _herbSprites.set(key, img);
+});
 
 const uiRoot = document.getElementById("ui-root");
 
@@ -472,18 +533,27 @@ function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   renderMap(ctx, map, camera, SCALE);
   renderBuildings(ctx, map, camera, SCALE);
+  renderObjects(ctx, map, camera, SCALE);
 
+  ctx.imageSmoothingEnabled = false;
   for (const spawn of activeSpawns) {
     const screenX = (spawn.x * map.tileSize - camera.x) * SCALE;
     const screenY = (spawn.y * map.tileSize - camera.y) * SCALE;
-    const [htAtlas, htIdx] = herbTile(spawn.species);
-    drawTile(ctx, htAtlas, htIdx, screenX, screenY, map.tileSize * SCALE);
+    const sz = map.tileSize * SCALE;
+    const herbImg = _herbSprites.get(spawn.species);
+    if (herbImg?.complete && herbImg.naturalWidth > 0) {
+      ctx.drawImage(herbImg, screenX, screenY, sz, sz);
+    } else {
+      const [htAtlas, htIdx] = herbTile(spawn.species);
+      drawTile(ctx, htAtlas, htIdx, screenX, screenY, sz);
+    }
   }
+  ctx.imageSmoothingEnabled = true;
 
   for (const npc of getActiveNpcs(map.id, time, villagerStatus)) {
     const screenX = (npc.x * map.tileSize - camera.x) * SCALE;
     const screenY = (npc.y * map.tileSize - camera.y) * SCALE;
-    drawCharacter(ctx, screenX, screenY, { direction: "down", tint: npc.tint }, map.tileSize, SCALE);
+    drawCharacter(ctx, screenX, screenY, { direction: npc.direction ?? "down", colour: npc.colour, plCharKey: npc.id }, map.tileSize, SCALE);
   }
 
   drawPlayer(ctx, player, camera, map.tileSize, SCALE);

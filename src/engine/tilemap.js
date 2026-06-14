@@ -1,14 +1,16 @@
 // Reads ASCII map grids (src/data/maps/*.js). Engine-side, this knows nothing
 // about specific tile meanings beyond `solid` + `color` + optional `t` from the legend.
-// When a legend entry has `t: [atlasName, tileIndex]` the atlas tile is drawn
-// instead of the flat color. If the atlas is not yet loaded the color is used
-// as a fallback, so the world never goes black on startup.
 //
-// Auto-tiling: legend entries with a `terrain` field ("path" or "bed") receive
-// neighbor-aware tile selection via computeBitmask + dirtBlobIndex from autotile.js.
-// Paths additionally overlay paths.png fringe marks for surface texture.
+// Legend entry fields:
+//   t: [atlasName, tileIndex]  — draw this atlas tile (SL tilesets)
+//   wang: "atlasName"          — PixelLab Wang grass tile; index computed from path
+//                                neighbors. If terrain:"path", draws pure-path tile
+//                                (wang_0, index 6). Otherwise draws grass transition.
+//   terrain: "path"|"bed"      — auto-tiled with blob tiles from "dirt" atlas
+//
+// Fallback: def.color fills the tile when no atlas is ready.
 import { drawTile } from "./tileset.js";
-import { computeBitmask, dirtBlobIndex, pathFringeIndex } from "./autotile.js";
+import { computeBitmask, dirtBlobIndex, pathFringeIndex, grassWangIndex } from "./autotile.js";
 import { buildingSolidAt } from "./buildings.js";
 
 export function getTileDef(map, tx, ty) {
@@ -47,28 +49,35 @@ export function renderMap(ctx, map, camera, scale) {
       if (!def) continue;
       const screenX = Math.round(tx * tileSize * scale - camera.x * scale);
       const screenY = Math.round(ty * tileSize * scale - camera.y * scale);
-      // Always paint def.color first so transparent tile pixels show through to
-      // the correct color rather than the black canvas background. Then blit the
-      // atlas sprite on top (if available); skip the fill-only path only when
-      // the tile is fully opaque and the atlas is confirmed loaded.
+
+      // Color fill first — transparent atlas pixels blend to this, not to black.
       ctx.fillStyle = def.color;
       ctx.fillRect(screenX, screenY, scaledTile, scaledTile);
-      if (def.terrain === "path" || def.terrain === "bed") {
-        // Auto-tiled terrain: compute bitmask from same-terrain neighbors and
-        // draw the matching blob tile from the "dirt" atlas. Transparent areas
-        // in the blob tile let the color fill (drawn above) show through as the
-        // path/bed color. Falls back to def.t[1] flat fill if atlas not ready.
+
+      if (def.wang) {
+        if (def.terrain === "path") {
+          // Path tile in the Wang system: always pure path (wang_0 = index 6).
+          const drawn = drawTile(ctx, def.wang, 6, screenX, screenY, scaledTile);
+          if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
+        } else if (def.terrain === "bed") {
+          // Bed tiles: keep SL blob approach; Wang atlas not used for beds.
+          const bitmask = computeBitmask(map, tx, ty, "bed");
+          const drawn = drawTile(ctx, "dirt", dirtBlobIndex(bitmask), screenX, screenY, scaledTile);
+          if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
+        } else {
+          // Grass (or other non-terrain) tile: Wang transition based on path neighbors.
+          const pathMask = computeBitmask(map, tx, ty, "path");
+          const drawn = drawTile(ctx, def.wang, grassWangIndex(pathMask), screenX, screenY, scaledTile);
+          if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
+        }
+      } else if (def.terrain === "path" || def.terrain === "bed") {
+        // Legacy SL blob approach (maps without wang field).
         const bitmask = computeBitmask(map, tx, ty, def.terrain);
         const blobIdx = dirtBlobIndex(bitmask);
         const drawn = drawTile(ctx, "dirt", blobIdx, screenX, screenY, scaledTile);
-        if (!drawn && def.t) {
-          // Atlas not loaded yet — draw the fallback flat tile
-          drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
-        }
-        // For paths: also overlay the paths.png fringe texture
+        if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
         if (def.terrain === "path" && drawn) {
-          const fringeIdx = pathFringeIndex(bitmask);
-          drawTile(ctx, "paths", fringeIdx, screenX, screenY, scaledTile);
+          drawTile(ctx, "paths", pathFringeIndex(bitmask), screenX, screenY, scaledTile);
         }
       } else if (def.t) {
         drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);

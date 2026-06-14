@@ -61,7 +61,8 @@ export const villagers = {
     ailmentThemes: ["verdauung", "wunde", "erkaeltungHerbst"],
     home:   { map: "dorf", x: 4,  y: 5  },
     square: { map: "dorf", x: 11, y: 9  },
-    tint: 180, // red dress → hue-rotate blue→red
+    colour: "#c0392b", // bold red
+    tint: 180,
     sprite: humanSprite([null, "#f5cba7", "#c0392b", "#6b3a2a", "#795548"]),
     dialog: {
       gruss: "Grüezi! Schön, dich zu sehen.",
@@ -80,7 +81,8 @@ export const villagers = {
     ailmentThemes: ["gelenkschmerz", "husten", "gelenkschmerz2", "prellung"],
     home:   { map: "dorf", x: 4,  y: 14 },
     square: { map: "dorf", x: 7,  y: 11 },
-    tint: 25,  // dark-blue jacket → slight shift so he isn't a player look-alike
+    colour: "#1a5276", // dark navy blue
+    tint: 25,
     sprite: humanSprite([null, "#e8c9a0", "#2e4a7a", "#aaaaaa", "#5d4037"]),
     dialog: {
       gruss: "Jo, Gott zum Gruss!",
@@ -98,7 +100,8 @@ export const villagers = {
     ailmentThemes: ["kopfschmerz", "fruehjahrsmuedigkeit", "nervositaet"],
     home:   { map: "dorf", x: 26, y: 8  },
     square: { map: "dorf", x: 21, y: 8  },
-    tint: 120, // green dress → hue-rotate blue→green
+    colour: "#27ae60", // vivid green
+    tint: 120,
     sprite: humanSprite([null, "#f5cba7", "#27ae60", "#1c1c1c", "#5d4037"]),
     dialog: {
       gruss: "Guten Tag! Ich war gerade beim Brunnen.",
@@ -117,7 +120,8 @@ export const villagers = {
     ailmentThemes: ["wunde", "verdauung", "gelenkschmerz2", "prellung"],
     home:   { map: "dorf", x: 26, y: 14 },
     square: { map: "dorf", x: 22, y: 12 },
-    tint: 300, // purple tunic → hue-rotate toward magenta/violet
+    colour: "#8e44ad", // vivid purple
+    tint: 300,
     sprite: humanSprite([null, "#f5cba7", "#8e44ad", "#7d3c00", "#5d4037"]),
     dialog: {
       gruss: "Hoi! Alles guet?",
@@ -136,7 +140,8 @@ export const villagers = {
     ailmentThemes: ["erkaeltung", "husten", "erkaeltungHerbst"],
     home:   { map: "dorf", x: 4,  y: 3  },
     square: { map: "dorf", x: 6,  y: 8  },
-    tint: 210, // orange/yellow dress → hue-rotate toward warm amber
+    colour: "#e67e22", // warm orange
+    tint: 210,
     sprite: childSprite([null, "#f5d0a7", "#f39c12", "#d4a017", "#795548"]),
     dialog: {
       gruss: "Hallo! Schaust du auch Blumen?",
@@ -154,7 +159,8 @@ export const villagers = {
     ailmentThemes: ["gelenkschmerz", "fruehjahrsmuedigkeit", "schlaflosigkeit", "nervositaet"],
     home:   { map: "dorf", x: 24, y: 15 },
     square: { map: "dorf", x: 19, y: 13 },
-    tint: 160, // amber apron → shift toward warm red-orange
+    colour: "#16a085", // teal/cyan — distinct from red, blue, green, purple
+    tint: 160,
     sprite: humanSprite([null, "#f5cba7", "#c77c1e", "#c0c0c0", "#795548"]),
     dialog: {
       gruss: "Grüezi wohl! Kommst du zum Znacht?",
@@ -173,7 +179,8 @@ export const villagers = {
     ailmentThemes: [],
     home:   { map: "dorf", x: 12, y: 7  },
     square: { map: "dorf", x: 12, y: 8  },
-    tint: 45,  // dark navy + gold trim → warm golden shift for the mentor
+    colour: "#d4ac0d", // golden yellow — mentor stands out distinctly
+    tint: 45,
     sprite: humanSprite([null, "#f5d0a7", "#1a5276", "#d4ac0d", "#2c3e50"]),
     dialog: {
       gruss: "Schön, dass du lernst, Kind.",
