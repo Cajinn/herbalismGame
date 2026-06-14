@@ -483,6 +483,57 @@ body {
   color: #fff;
 }
 
+/* ── Identify teaching lesson panel ────────────────────────────────────────── */
+
+/* Shown after a wrong guess to explain how to tell the plants apart. */
+.identify__lesson {
+  padding: 8px 10px;
+  background: rgba(196, 160, 106, 0.15);
+  border: 1px solid var(--wood-light);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-dark);
+  font-style: italic;
+  margin: 0;
+}
+
+/* Positive tint — used after a correct guess or in the mastered view. */
+.identify__lesson--ok {
+  background: rgba(74, 124, 42, 0.1);
+  border-color: #7cb342;
+  color: #3a5e1e;
+}
+
+.identify__lesson-title {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: bold;
+  font-style: normal;
+  color: var(--wood-deep);
+}
+
+/* Inline danger badge shown when the wrong guess is a toxic lookalike. */
+.identify__danger {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #b03030;
+  color: #fff;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+}
+
+/* Small muted counter under the merkmale list. */
+.identify__merkmale-count {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ── Protected species notice (M5 WP7) ─────────────────────────────────────── */
 
 .identify__geschuetzt {

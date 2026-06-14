@@ -80,6 +80,11 @@ export const strings = {
     korrekt: "Richtig erkannt!",
     inkorrekt: "Das ist es nicht – schau dir die Merkmale genauer an und versuch's nochmal.",
     keineVerwendung: "Diese Pflanze lässt du besser stehen.",
+    unterschiedTitel: "So erkennst du den Unterschied:",
+    gefahrGiftig: "giftig",
+    gefahrToedlich: "tödlich giftig",
+    merkmaleUntersucht: "Merkmale untersucht:",
+    richtigHinweis: "Gut erkannt — so unterscheidest du sie:",
   },
   inventar: {
     titel: "Inventar",

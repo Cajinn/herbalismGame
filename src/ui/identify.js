@@ -95,6 +95,32 @@ function getHarvestableTeile(herb, availableTeile) {
   );
 }
 
+// Returns the verwechslung entry linking trueId and candidateId (either
+// direction), or null if no relationship exists.
+function getUnterscheidung(trueId, candidateId) {
+  const trueHerb = herbs[trueId];
+  if (trueHerb?.verwechslung) {
+    const entry = trueHerb.verwechslung.find((v) => v.art === candidateId);
+    if (entry) return entry;
+  }
+  const candHerb = herbs[candidateId];
+  if (candHerb?.verwechslung) {
+    const entry = candHerb.verwechslung.find((v) => v.art === trueId);
+    if (entry) return entry;
+  }
+  return null;
+}
+
+// Returns the most severe verwechslung entry for trueId, or null.
+// Severity ranking: toedlich > giftig > anything else.
+function getMainLookalike(trueId) {
+  const entries = herbs[trueId]?.verwechslung;
+  if (!entries || entries.length === 0) return null;
+
+  const rank = (e) => (e.gefahr === "toedlich" ? 2 : e.gefahr === "giftig" ? 1 : 0);
+  return entries.reduce((best, e) => (rank(e) >= rank(best) ? e : best), entries[0]);
+}
+
 function addRow(dl, label, value) {
   const dt = document.createElement("dt");
   dt.textContent = label;
@@ -169,9 +195,6 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
     list.className = "identify__candidates";
     body.appendChild(list);
 
-    // Shown after a wrong guess: lets player harvest with wrong label (risky!)
-    let mislabelSection = null;
-
     for (const candidateId of getCandidates(spawn.species)) {
       const btn = document.createElement("button");
       btn.textContent = herbs[candidateId].nameDe;
@@ -186,34 +209,47 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
           }
           info.textContent = strings.bestimmen.inkorrekt;
 
-          // Offer mislabeled harvest option so player can still take the plant
-          if (mislabelSection) mislabelSection.remove();
-          mislabelSection = document.createElement("div");
-          mislabelSection.className = "identify__mislabel";
-          const wrongHarvestable = getHarvestableTeile(herbs[candidateId], spawn.availableTeile);
-          if (wrongHarvestable.length > 0) {
-            const warn = document.createElement("p");
-            warn.className = "identify__mislabel-warn";
-            warn.textContent = strings.bestimmen.mislabelWarn ?? "Trotzdem ernten (auf eigene Gefahr)?";
-            mislabelSection.appendChild(warn);
-            for (const teil of wrongHarvestable) {
-              const mBtn = document.createElement("button");
-              mBtn.className = "identify__mislabel-btn";
-              mBtn.textContent = `${strings.bestimmen.ernten}: ${strings.teile[teil]} (als ${herbs[candidateId].nameDe})`;
-              mBtn.addEventListener("click", () => {
-                onHarvest({ ...spawn, labeledAs: candidateId }, teil);
-                close();
-              });
-              mislabelSection.appendChild(mBtn);
+          // Remove any previous teaching lesson and replace it.
+          const prevLesson = body.querySelector(".identify__lesson");
+          if (prevLesson) prevLesson.remove();
+
+          const unterscheidung = getUnterscheidung(spawn.species, candidateId);
+          if (unterscheidung) {
+            const lesson = document.createElement("div");
+            lesson.className = "identify__lesson";
+
+            const heading = document.createElement("p");
+            heading.className = "identify__lesson-title";
+            heading.textContent = strings.bestimmen.unterschiedTitel;
+            lesson.appendChild(heading);
+
+            const text = document.createElement("p");
+            text.textContent = unterscheidung.unterscheidung;
+            lesson.appendChild(text);
+
+            if (unterscheidung.gefahr === "giftig" || unterscheidung.gefahr === "toedlich") {
+              const badge = document.createElement("span");
+              badge.className = "identify__danger";
+              badge.textContent =
+                unterscheidung.gefahr === "toedlich"
+                  ? strings.bestimmen.gefahrToedlich
+                  : strings.bestimmen.gefahrGiftig;
+              lesson.appendChild(badge);
             }
+
+            body.appendChild(lesson);
           }
-          body.appendChild(mislabelSection);
           return;
         }
 
         prompt.remove();
         list.remove();
-        if (mislabelSection) mislabelSection.remove();
+        // Remove any lesson that was shown during wrong guesses.
+        const prevLesson = body.querySelector(".identify__lesson");
+        if (prevLesson) prevLesson.remove();
+        // Also clear the inkorrekt message if it was shown.
+        const prevInkorrekt = body.querySelector(".identify__inkorrekt");
+        if (prevInkorrekt) prevInkorrekt.remove();
 
         const correct = document.createElement("p");
         correct.textContent = strings.bestimmen.korrekt;
@@ -223,6 +259,16 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
           const gelernt = document.createElement("p");
           gelernt.textContent = strings.meldungen.gelernt;
           body.appendChild(gelernt);
+        }
+
+        // After a correct guess, show an affirmation with the main lookalike's
+        // distinguishing feature so the lesson sticks.
+        const mainLookalike = getMainLookalike(spawn.species);
+        if (mainLookalike) {
+          const hint = document.createElement("p");
+          hint.className = "identify__lesson identify__lesson--ok";
+          hint.textContent = `${strings.bestimmen.richtigHinweis} ${mainLookalike.unterscheidung}`;
+          body.appendChild(hint);
         }
 
         renderResult(body, spawn);
@@ -304,6 +350,12 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
 
     panel.appendChild(header);
 
+    // Examination counter — tracks how many features the player has revealed.
+    let examineCount = 0;
+    const merkmaleCaption = document.createElement("p");
+    merkmaleCaption.className = "identify__merkmale-count";
+    merkmaleCaption.textContent = `${strings.bestimmen.merkmaleUntersucht} 0 / ${MERKMALE_ORDER.length}`;
+
     const merkmaleList = document.createElement("div");
     merkmaleList.className = "identify__merkmale";
     for (const key of MERKMALE_ORDER) {
@@ -320,12 +372,15 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
         text.textContent = `${strings.merkmale[key]}: ${herb.merkmale[key]}`;
         text.hidden = false;
         btn.hidden = true;
+        examineCount += 1;
+        merkmaleCaption.textContent = `${strings.bestimmen.merkmaleUntersucht} ${examineCount} / ${MERKMALE_ORDER.length}`;
         if (onExamine(spawn.species, key)) close();
       });
 
       row.append(btn, text);
       merkmaleList.appendChild(row);
     }
+    merkmaleList.appendChild(merkmaleCaption);
     panel.appendChild(merkmaleList);
 
     const body = document.createElement("div");
@@ -336,6 +391,16 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
       const known = document.createElement("p");
       known.textContent = `${strings.bestimmen.erkanntGelernt} ${herb.nameDe}`;
       body.appendChild(known);
+
+      // Reinforce the key distinction even for mastered plants.
+      const mainLookalike = getMainLookalike(spawn.species);
+      if (mainLookalike) {
+        const recap = document.createElement("p");
+        recap.className = "identify__lesson identify__lesson--ok";
+        recap.textContent = `${strings.bestimmen.richtigHinweis} ${mainLookalike.unterscheidung}`;
+        body.appendChild(recap);
+      }
+
       renderResult(body, spawn);
     } else {
       renderCandidates(body, spawn);
