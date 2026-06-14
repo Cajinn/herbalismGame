@@ -14,7 +14,7 @@ import { createPlayer, updatePlayer } from "./world/player.js";
 import { getActiveSpawns } from "./world/plantSpawns.js";
 import { getActiveNpcs } from "./world/npc.js";
 import { createTime, advanceTime, advanceDay, addMinutes, absoluteDay } from "./sim/time.js";
-import { createInventory, addItem, removeItem, groupInventory } from "./sim/inventory.js";
+import { createInventory, addItem, removeItem, groupInventory, tickSpoilage, discardItems } from "./sim/inventory.js";
 import { createProgress, recordSighting, recordMerkmalReveal, recordCraft, recordDelivery } from "./sim/progress.js";
 import { createProcessingState, startDrying, startRecipe, tickAndComplete, recordCare } from "./sim/processing.js";
 import { createReputation, addVertrauen, getVillageVertrauen } from "./sim/reputation.js";
@@ -210,6 +210,8 @@ let garden = createGarden();
 let villagerStatus = createVillagerStatus();
 let quests = { alpweideUnlocked: false };
 let introSeen = false;
+// WP4a: Hard Mode (OFF by default — normal mode is unaffected)
+let hardMode = false;
 
 const saved = loadGame();
 if (saved) {
@@ -236,6 +238,7 @@ if (saved) {
   villagerStatus = saved.villagerStatus ?? createVillagerStatus();
   quests         = saved.quests         ?? { alpweideUnlocked: false };
   introSeen      = saved.introSeen      ?? false;
+  hardMode       = saved.hardMode       ?? false;
 }
 
 canvas.width = VIEWPORT_TILES_X * map.tileSize * SCALE;
@@ -272,16 +275,23 @@ function persist() {
     villagerStatus,
     quests,
     introSeen,
+    hardMode,
   });
 }
 
 // Called whenever a day boundary is crossed (manual sleep or midnight collapse).
 function onDayComplete() {
-  const completed = tickAndComplete(processingState, inventory, time);
+  const completed = tickAndComplete(processingState, inventory, time, { hardMode });
   for (const prep of completed) {
     recordCraft(progress, prep.species);
     const name = herbs[prep.species]?.nameDe ?? prep.species;
     hud.showMessage(`${name} ${strings.meldungenVerarbeitung.fertig}`);
+  }
+
+  // Hard Mode: raw herbs spoil after 3 days; processed items are exempt.
+  if (hardMode) {
+    const spoiled = tickSpoilage(inventory, absoluteDay(time));
+    if (spoiled > 0) hud.showMessage(strings.meldungen.verdorben);
   }
 
   tickGarden(garden, time);
@@ -417,7 +427,7 @@ function handleHarvest(spawn, teil) {
     hud.showMessage(strings.quest.geschuetztKonfisziert);
     return;
   }
-  addItem(inventory, spawn.species, teil, spawn.labeledAs ?? null);
+  addItem(inventory, spawn.species, teil, spawn.labeledAs ?? null, absoluteDay(time));
   harvested.add(spawn.id);
   persist();
   const displayName = spawn.labeledAs ? (herbs[spawn.labeledAs]?.nameDe ?? spawn.labeledAs) : spawn.herb.nameDe;
@@ -439,7 +449,13 @@ const hud = createHud(uiRoot, {
     persist();
     hud.showMessage(strings.meldungen.gespeichert);
   },
-  onToggleInventory: () => inventoryPanel.toggle(inventory),
+  onToggleInventory: () => inventoryPanel.toggle(inventory, {
+    onDiscard(group) {
+      discardItems(inventory, group);
+      persist();
+      inventoryPanel.refresh(inventory);
+    },
+  }),
   onOpenBook: () => book.open(progress, time),
   onOpenMap: () => mapPanel.toggle(map.id),
   onNewGame: () => {
@@ -452,6 +468,13 @@ hud.update(time);
 hud.setStats({ coins });
 if (saved) hud.showMessage(strings.meldungen.geladen);
 
+// Hard Mode badge — small indicator shown while hardMode is on.
+const hardModeBadge = document.createElement("div");
+hardModeBadge.className = "hud__hard-mode-badge";
+hardModeBadge.textContent = strings.inventar.hardModeBadge ?? "⚠ Schwerer Modus aktiv";
+hardModeBadge.hidden = !hardMode;
+uiRoot.appendChild(hardModeBadge);
+
 const identifyDialog = createIdentifyDialog(uiRoot, {
   progress,
   onExamine: handleExamine,
@@ -462,10 +485,6 @@ const workshopDialog = createWorkshopDialog(uiRoot, {
   onStartDrying: (species, teil) => startDrying(processingState, inventory, species, teil, time),
   onStartRecipe: (recipe) => startRecipe(processingState, inventory, recipe, time, zutaten),
   onSleep: doSleep,
-  onCare: (prepId, action) => {
-    recordCare(processingState, prepId, action, time);
-    persist();
-  },
 });
 
 const book = createBook(uiRoot);
@@ -584,7 +603,13 @@ const depositPanel = createDepositPanel(uiRoot, {
 });
 
 const titleScreen = createTitleScreen(uiRoot);
-titleScreen.show(() => { introSeen = true; persist(); });
+const startedNewGame = !introSeen;   // Hard Mode is chosen only for a fresh game
+titleScreen.show((chosen) => {
+  if (startedNewGame) hardMode = chosen;   // saved games keep their stored mode
+  hardModeBadge.hidden = !hardMode;
+  introSeen = true;
+  persist();
+}, { newGame: startedNewGame, hardMode });
 
 function update(dt) {
   if (titleScreen.isVisible()) return;

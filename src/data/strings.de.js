@@ -80,15 +80,12 @@ export const strings = {
     korrekt: "Richtig erkannt!",
     inkorrekt: "Das ist es nicht – schau dir die Merkmale genauer an und versuch's nochmal.",
     keineVerwendung: "Diese Pflanze lässt du besser stehen.",
-    unterschiedTitel: "So erkennst du den Unterschied:",
-    gefahrGiftig: "giftig",
-    gefahrToedlich: "tödlich giftig",
-    merkmaleUntersucht: "Merkmale untersucht:",
-    richtigHinweis: "Gut erkannt — so unterscheidest du sie:",
   },
   inventar: {
     titel: "Inventar",
     leer: "Noch nichts gesammelt.",
+    wegwerfen: "Wegwerfen",
+    hardModeBadge: "⚠ Schwerer Modus aktiv",
   },
   verarbeitet: {
     getrocknet: "getrocknet",
@@ -139,15 +136,6 @@ export const strings = {
     baldigVerfuegbar: "(bald im Dorfladen)",
     imLaden: "(im Dorfladen kaufen)",
     fertigung: "Sofort fertig",
-    pflege: {
-      wenden: "Heute wenden",
-      schuetteln: "Heute schütteln",
-    },
-    gepflegt: (action, n) => {
-      const labels = { wenden: "gewendet", schuetteln: "geschüttelt" };
-      return `${labels[action] ?? action} ${n}×`;
-    },
-    pflegeHinweis: "Pflege nötig",
   },
   meldungenVerarbeitung: {
     gestartet: "Verarbeitung gestartet.",
@@ -169,7 +157,6 @@ export const strings = {
     erntezeit: "Erntezeit",
     verwendung: "Verwendung",
     wirkung: "Wirkung",
-    hilftBei: "Hilft bei:",
     verwechslung: "Verwechslungsgefahr",
     merkmale: "Merkmale",
     keineRezepte: "Noch keine Rezepte bekannt.",
@@ -215,8 +202,6 @@ export const strings = {
     gut: "gut",
     maessig: "mässig",
     unbrauchbar: "unbrauchbar",
-    hinweis: (q) => `(${q} zubereitet)`,
-    lieferungRichtig: (q) => `— eine ${q} zubereitete Zubereitung.`,
   },
   anfragen: {
     titel: "Anschlagbrett",
@@ -224,8 +209,6 @@ export const strings = {
     geben: "Geben",
     keineProdukte: "Kein verarbeitetes Mittel im Inventar.",
     ablehnung: "Schau im Buch nach, welche Mittel bei dieser Beschwerde helfen.",
-    remedyHinweis: (ailment, remedy) => `Gegen ${ailment} wäre z. B. ${remedy} gut gewesen.`,
-    remedyRichtig: "Gut gewählt — ",
   },
   abgabe: {
     titel: "Abgabebox",
@@ -264,6 +247,7 @@ export const strings = {
     weiter: "Weiterspielen",
     disclaimer: "Dieses Spiel vermittelt traditionelles Pflanzenwissen — es ersetzt keinen Arztbesuch und keine botanische Ausbildung. Wildkräuter immer sicher bestimmen, bevor du sie verwendest.",
     version: "M5 — Inhalt & Politur",
+    hardMode: "Schwerer Modus (Verderb & Vernachlässigung)",
   },
   meldungen: {
     eingeschlafen: "Du bist eingeschlafen und hast den Morgen verpasst.",
@@ -277,5 +261,6 @@ export const strings = {
     neueAnfragen: "Neue Anfragen im Dorf.",
     mislabeled: "Achtung: Du hast diese Pflanze falsch bestimmt!",
     genesen: (name) => `${name} ist wieder gesund.`,
+    verdorben: "Etwas in deinem Vorrat ist verdorben.",
   },
 };

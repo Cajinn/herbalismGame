@@ -71,7 +71,7 @@ export const QUALITY_ORDER = ["sorgfaeltig", "gut", "maessig", "unbrauchbar"];
 
 // Computes the quality of a finished preparation based on how well it was tended.
 // method must be the methods[prep.method] object.
-// hardMode is reserved for a future WP (spoilage) — currently unused.
+// hardMode: when true, total neglect (0 care logged) returns "unbrauchbar".
 export function computeQuality(prep, method, { hardMode = false } = {}) {
   if (!method || !method.care || method.care.length === 0) return "gut";
 
@@ -84,9 +84,13 @@ export function computeQuality(prep, method, { hardMode = false } = {}) {
   const actual = (prep.careLog ?? []).length;
   const coverage = expected > 0 ? actual / expected : 1;
 
+  // Hard Mode: total neglect (zero care logged at all) → unbrauchbar
+  if (hardMode && method.care.length > 0 && actual === 0) {
+    return "unbrauchbar";
+  }
+
   if (coverage >= 0.66) return "sorgfaeltig";
   if (coverage >= 0.33) return "gut";
-  // TODO hardMode: return "unbrauchbar" for very poor coverage
   return "maessig";
 }
 
@@ -132,7 +136,9 @@ export function recordCare(processingState, prepId, action, time) {
 // Checks all active preparations and completes any whose time has elapsed.
 // Completed items are added to inventory. Returns the list of completed preps
 // (so main.js can show HUD messages and record craft progress).
-export function tickAndComplete(processingState, inventory, time) {
+// opts: { hardMode: bool } — passed to computeQuality for neglect penalty.
+export function tickAndComplete(processingState, inventory, time, opts = {}) {
+  const { hardMode = false } = opts;
   const current = absoluteDay(time);
   const done = [];
 
@@ -146,8 +152,8 @@ export function tickAndComplete(processingState, inventory, time) {
 
   for (const prep of done) {
     const method = methods[prep.method];
-    const quality = computeQuality(prep, method);
-    addProcessedItem(inventory, prep.species, prep.teil, prep.output, quality);
+    const quality = computeQuality(prep, method, { hardMode });
+    addProcessedItem(inventory, prep.species, prep.teil, prep.output, quality, current);
   }
 
   return done;

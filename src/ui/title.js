@@ -2,6 +2,7 @@ import { strings } from "../data/strings.de.js";
 
 // Full-screen title/splash shown on first launch (introSeen === false).
 // Returns { show(onStart), hide() }.
+// onStart(hardMode: bool) is called when the player clicks the start button.
 export function createTitleScreen(root) {
   const overlay = document.createElement("div");
   overlay.className = "title-screen";
@@ -33,16 +34,33 @@ export function createTitleScreen(root) {
   startBtn.textContent = strings.titelbildschirm?.starten ?? "Spiel starten";
   box.appendChild(startBtn);
 
+  // Hard Mode checkbox
+  const hardModeRow = document.createElement("label");
+  hardModeRow.className = "title-screen__hard-mode";
+  const hardModeCheck = document.createElement("input");
+  hardModeCheck.type = "checkbox";
+  hardModeCheck.checked = false;
+  const hardModeLabel = document.createTextNode(
+    ` ${strings.titelbildschirm?.hardMode ?? "Schwerer Modus (Verderb & Vernachlässigung)"}`,
+  );
+  hardModeRow.appendChild(hardModeCheck);
+  hardModeRow.appendChild(hardModeLabel);
+  box.appendChild(hardModeRow);
+
   let _onStart = null;
 
   startBtn.addEventListener("click", () => {
     overlay.hidden = true;
-    if (_onStart) _onStart();
+    if (_onStart) _onStart(hardModeCheck.checked);
   });
 
   return {
-    show(onStart) {
+    // newGame=false (a save exists) hides the Hard Mode choice — the mode is
+    // fixed for an in-progress game; the checkbox just reflects the stored value.
+    show(onStart, { newGame = true, hardMode = false } = {}) {
       _onStart = onStart;
+      hardModeCheck.checked = hardMode;
+      hardModeRow.hidden = !newGame;
       overlay.hidden = false;
     },
     hide() {

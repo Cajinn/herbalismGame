@@ -3,7 +3,6 @@ import { herbs } from "../data/herbs/index.js";
 import { ailments } from "../data/ailments.js";
 import { groupInventory } from "../sim/inventory.js";
 import { requestForVillager } from "../sim/requests.js";
-import { exampleRemedy } from "../sim/remedies.js";
 
 // Villager interaction dialog. onGive(requestId, item) → "match"|"mismatch"|"toxic".
 // onMargritQuest() → called when player accepts alpweide quest.
@@ -104,7 +103,9 @@ export function createVillagerDialog(root, { onGive, getQuestState, onMargritQue
     feedbackEl.className = "villager-dialog__feedback";
     panel.appendChild(feedbackEl);
 
-    const processedItems = groupInventory(inventory).filter((g) => g.processed !== null);
+    const processedItems = groupInventory(inventory).filter(
+      (g) => g.processed !== null && g.quality !== "unbrauchbar",
+    );
 
     if (processedItems.length === 0) {
       panel.appendChild(el("p", strings.anfragen.keineProdukte));
@@ -124,32 +125,14 @@ export function createVillagerDialog(root, { onGive, getQuestState, onMargritQue
             const dankEl = el("p", `«${villager.dialog.dank}»`);
             dankEl.className = "villager-dialog__dank";
             panel.appendChild(dankEl);
-            // Gentle "why it worked" line, with quality mention if present
-            const wirkung = herbs[item.species]?.verwendung?.wirkungTraditionell;
-            const qualityStr = item.quality
-              ? ` ${strings.qualitaet.lieferungRichtig(strings.qualitaet[item.quality] ?? item.quality)}`
-              : "";
-            if (wirkung || qualityStr) {
-              const whyEl = el("p", `${strings.anfragen.remedyRichtig}${wirkung ?? ""}${qualityStr}`);
-              whyEl.className = "villager-dialog__feedback villager-dialog__feedback--richtig";
-              panel.appendChild(whyEl);
-            }
-            setTimeout(close, 2200);
+            setTimeout(close, 1600);
           } else if (result === "toxic") {
             feedbackEl.textContent = strings.toxic.krank(villager.nameDe);
             feedbackEl.className = "villager-dialog__feedback villager-dialog__feedback--toxic";
             setTimeout(close, 2500);
           } else {
-            // mismatch — show ablehnung + teaching hint
             feedbackEl.textContent = `«${villager.dialog.ablehnung}»`;
             feedbackEl.className = "villager-dialog__feedback villager-dialog__feedback--ablehnung";
-            const ex = exampleRemedy(ailment);
-            if (ex) {
-              const remedyText = `${herbs[ex.species]?.nameDe ?? ex.species}-${strings.verarbeitet[ex.output] ?? ex.output}`;
-              const hintEl = el("p", strings.anfragen.remedyHinweis(ailment.nameDe, remedyText));
-              hintEl.className = "villager-dialog__feedback villager-dialog__feedback--hinweis";
-              panel.appendChild(hintEl);
-            }
           }
         });
         row.append(label, btn);

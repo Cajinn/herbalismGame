@@ -3,7 +3,6 @@ import { herbs } from "../data/herbs/index.js";
 import { ailments } from "../data/ailments.js";
 import { villagers } from "../data/villagers.js";
 import { groupInventory } from "../sim/inventory.js";
-import { exampleRemedy } from "../sim/remedies.js";
 
 // Deposit box (Abgabebox) panel.
 // Lists all open villager requests; player picks a finished product to deposit.
@@ -52,9 +51,9 @@ export function createDepositPanel(root, { onDeposit }) {
       if (openRequests.length === 0) {
         panel.appendChild(el("p", strings.abgabe.keineAnfragen));
       } else {
-        // Gather finished (processed) items from inventory for quick access
+        // Gather finished (processed) usable items from inventory for quick access
         const processedItems = groupInventory(inventory).filter(
-          (g) => g.processed !== null,
+          (g) => g.processed !== null && g.quality !== "unbrauchbar",
         );
 
         const list = document.createElement("div");
@@ -111,16 +110,6 @@ export function createDepositPanel(root, { onDeposit }) {
                   const doneEl = el("p", strings.abgabe.erfolgreich);
                   doneEl.className = "board-dialog__title";
                   panel.appendChild(doneEl);
-                  // Gentle "why it worked" line, with quality mention if present
-                  const wirkung = herbs[item.species]?.verwendung?.wirkungTraditionell;
-                  const qualityStr = item.quality
-                    ? ` ${strings.qualitaet.lieferungRichtig(strings.qualitaet[item.quality] ?? item.quality)}`
-                    : "";
-                  if (wirkung || qualityStr) {
-                    const whyEl = el("p", `${strings.anfragen.remedyRichtig}${wirkung ?? ""}${qualityStr}`);
-                    whyEl.className = "board-dialog__complaint board-dialog__complaint--richtig";
-                    panel.appendChild(whyEl);
-                  }
                   const closeBtn2 = makeBtn(strings.bestimmen.schliessen, close);
                   closeBtn2.className = "board-dialog__close";
                   panel.appendChild(closeBtn2);
@@ -131,16 +120,8 @@ export function createDepositPanel(root, { onDeposit }) {
                   entry.appendChild(feedbackEl);
                   setTimeout(close, 2500);
                 } else {
-                  // mismatch — show fehlschlag + teaching hint
                   feedbackEl.textContent = strings.abgabe.fehlschlag;
                   if (!entry.contains(feedbackEl)) entry.appendChild(feedbackEl);
-                  const ex = exampleRemedy(ailment);
-                  if (ex) {
-                    const remedyText = `${herbs[ex.species]?.nameDe ?? ex.species}-${strings.verarbeitet[ex.output] ?? ex.output}`;
-                    const hintEl = el("p", strings.anfragen.remedyHinweis(ailment.nameDe, remedyText));
-                    hintEl.className = "board-dialog__complaint board-dialog__complaint--hinweis";
-                    if (!entry.contains(hintEl)) entry.appendChild(hintEl);
-                  }
                 }
               });
 
