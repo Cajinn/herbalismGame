@@ -3,6 +3,7 @@ import { herbs } from "../data/herbs/index.js";
 import { ailments } from "../data/ailments.js";
 import { groupInventory } from "../sim/inventory.js";
 import { requestForVillager } from "../sim/requests.js";
+import { exampleRemedy } from "../sim/remedies.js";
 
 // Villager interaction dialog. onGive(requestId, item) → "match"|"mismatch"|"toxic".
 // onMargritQuest() → called when player accepts alpweide quest.
@@ -123,14 +124,29 @@ export function createVillagerDialog(root, { onGive, getQuestState, onMargritQue
             const dankEl = el("p", `«${villager.dialog.dank}»`);
             dankEl.className = "villager-dialog__dank";
             panel.appendChild(dankEl);
-            setTimeout(close, 1600);
+            // Gentle "why it worked" line
+            const wirkung = herbs[item.species]?.verwendung?.wirkungTraditionell;
+            if (wirkung) {
+              const whyEl = el("p", `${strings.anfragen.remedyRichtig}${wirkung}`);
+              whyEl.className = "villager-dialog__feedback villager-dialog__feedback--richtig";
+              panel.appendChild(whyEl);
+            }
+            setTimeout(close, 2200);
           } else if (result === "toxic") {
             feedbackEl.textContent = strings.toxic.krank(villager.nameDe);
             feedbackEl.className = "villager-dialog__feedback villager-dialog__feedback--toxic";
             setTimeout(close, 2500);
           } else {
+            // mismatch — show ablehnung + teaching hint
             feedbackEl.textContent = `«${villager.dialog.ablehnung}»`;
             feedbackEl.className = "villager-dialog__feedback villager-dialog__feedback--ablehnung";
+            const ex = exampleRemedy(ailment);
+            if (ex) {
+              const remedyText = `${herbs[ex.species]?.nameDe ?? ex.species}-${strings.verarbeitet[ex.output] ?? ex.output}`;
+              const hintEl = el("p", strings.anfragen.remedyHinweis(ailment.nameDe, remedyText));
+              hintEl.className = "villager-dialog__feedback villager-dialog__feedback--hinweis";
+              panel.appendChild(hintEl);
+            }
           }
         });
         row.append(label, btn);

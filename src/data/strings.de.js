@@ -160,6 +160,7 @@ export const strings = {
     erntezeit: "Erntezeit",
     verwendung: "Verwendung",
     wirkung: "Wirkung",
+    hilftBei: "Hilft bei:",
     verwechslung: "Verwechslungsgefahr",
     merkmale: "Merkmale",
     keineRezepte: "Noch keine Rezepte bekannt.",
@@ -206,6 +207,8 @@ export const strings = {
     geben: "Geben",
     keineProdukte: "Kein verarbeitetes Mittel im Inventar.",
     ablehnung: "Schau im Buch nach, welche Mittel bei dieser Beschwerde helfen.",
+    remedyHinweis: (ailment, remedy) => `Gegen ${ailment} wäre z. B. ${remedy} gut gewesen.`,
+    remedyRichtig: "Gut gewählt — ",
   },
   abgabe: {
     titel: "Abgabebox",

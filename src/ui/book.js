@@ -1,11 +1,13 @@
 import { strings } from "../data/strings.de.js";
 import { herbs } from "../data/herbs/index.js";
+import { ailments } from "../data/ailments.js";
 import { recipes } from "../data/recipes.js";
 import { methods } from "../data/methods.js";
 import { SEASONS, DAYS_PER_SEASON, getSeasonKey } from "../sim/time.js";
 import {
   isGesehen, isGelernt, getRevealedMerkmale, hasCrafted,
 } from "../sim/progress.js";
+import { remediesForSpecies } from "../sim/remedies.js";
 import { drawTile } from "../engine/tileset.js";
 import { herbTile } from "../data/herbTiles.js";
 
@@ -265,12 +267,40 @@ export function createBook(root) {
       right.appendChild(section);
     }
 
-    // Verwendung + Wirkung (after first craft OR after gelernt)
-    if (hasCrafted(currentProgress, speciesId) || isGelernt(currentProgress, speciesId)) {
+    // Wirkung (shown as soon as gesehen — knowledge-first)
+    {
       const section = bookSection(strings.buch.wirkung);
       if (herb.verwendung?.wirkungTraditionell) {
         section.appendChild(el("p", herb.verwendung.wirkungTraditionell));
       }
+
+      // "Hilft bei: …" — reverse-lookup from ailments registry
+      const remedyEntries = remediesForSpecies(speciesId);
+      if (remedyEntries.length > 0) {
+        // Group ailment names by output so we can emit "Erkältung, Husten (als Tee)"
+        const byOutput = {};
+        for (const { ailmentId, output } of remedyEntries) {
+          const ail = ailments[ailmentId];
+          if (!ail) continue;
+          if (!byOutput[output]) byOutput[output] = [];
+          byOutput[output].push(ail.nameDe);
+        }
+        const parts = Object.entries(byOutput).map(([output, names]) => {
+          const prep = strings.verarbeitet[output] ?? output;
+          return `${names.join(", ")} (als ${prep})`;
+        });
+        const hilftBeiEl = document.createElement("p");
+        hilftBeiEl.className = "book__hilft-bei";
+        hilftBeiEl.textContent = `${strings.buch.hilftBei} ${parts.join("; ")}`;
+        section.appendChild(hilftBeiEl);
+      }
+
+      right.appendChild(section);
+    }
+
+    // Verwendung — teil-based prep list (after first craft OR after gelernt)
+    if (hasCrafted(currentProgress, speciesId) || isGelernt(currentProgress, speciesId)) {
+      const section = bookSection(strings.buch.verwendung);
       const teile = Object.keys(herb.verwendung ?? {}).filter((k) => k !== "wirkungTraditionell");
       if (teile.length) {
         const list = el("p",

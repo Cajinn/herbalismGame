@@ -50,6 +50,8 @@ export function createBoardDialog(root) {
           entry.className = "board-dialog__entry";
 
           const who = el("strong", `${villager.nameDe} (${villager.rolleDe})`);
+          const ailmentNameEl = el("p", ailment.nameDe);
+          ailmentNameEl.className = "board-dialog__ailment-name";
           const complaint = el("p", ailment.beschreibungDe);
           complaint.className = "board-dialog__complaint";
 
@@ -59,7 +61,7 @@ export function createBoardDialog(root) {
           const seasonEl = el("small", seasonList);
           seasonEl.className = "board-dialog__season";
 
-          entry.append(who, complaint, seasonEl);
+          entry.append(who, ailmentNameEl, complaint, seasonEl);
           list.appendChild(entry);
         }
         panel.appendChild(list);
