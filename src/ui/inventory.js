@@ -29,12 +29,17 @@ export function createInventoryPanel(root) {
       return;
     }
 
-    for (const { species, teil, processed, labeledAs, count } of groups) {
+    for (const { species, teil, processed, quality, labeledAs, count } of groups) {
       const li = document.createElement("li");
       const displaySpecies = labeledAs ?? species;
       const herbName = herbs[displaySpecies]?.nameDe ?? displaySpecies;
       const teilName = strings.teile[teil] ?? teil;
-      const processedPart = processed ? ` [${strings.verarbeitet[processed] ?? processed}]` : "";
+      const qualityLabel = (processed && quality)
+        ? ` (${strings.qualitaet[quality] ?? quality})`
+        : "";
+      const processedPart = processed
+        ? ` [${strings.verarbeitet[processed] ?? processed}${qualityLabel}]`
+        : "";
       const mislabelMark = labeledAs ? " (?)" : "";
       li.textContent = `${herbName}${mislabelMark} (${teilName})${processedPart} ×${count}`;
       list.appendChild(li);

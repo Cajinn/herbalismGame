@@ -139,6 +139,15 @@ export const strings = {
     baldigVerfuegbar: "(bald im Dorfladen)",
     imLaden: "(im Dorfladen kaufen)",
     fertigung: "Sofort fertig",
+    pflege: {
+      wenden: "Heute wenden",
+      schuetteln: "Heute schütteln",
+    },
+    gepflegt: (action, n) => {
+      const labels = { wenden: "gewendet", schuetteln: "geschüttelt" };
+      return `${labels[action] ?? action} ${n}×`;
+    },
+    pflegeHinweis: "Pflege nötig",
   },
   meldungenVerarbeitung: {
     gestartet: "Verarbeitung gestartet.",
@@ -200,6 +209,14 @@ export const strings = {
     kaufen: "Kaufen",
     zuWenig: "Zu wenig Münzen.",
     muenzen: "Guthaben:",
+  },
+  qualitaet: {
+    sorgfaeltig: "sorgfältig",
+    gut: "gut",
+    maessig: "mässig",
+    unbrauchbar: "unbrauchbar",
+    hinweis: (q) => `(${q} zubereitet)`,
+    lieferungRichtig: (q) => `— eine ${q} zubereitete Zubereitung.`,
   },
   anfragen: {
     titel: "Anschlagbrett",

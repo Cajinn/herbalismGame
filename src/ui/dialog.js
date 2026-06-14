@@ -124,10 +124,13 @@ export function createVillagerDialog(root, { onGive, getQuestState, onMargritQue
             const dankEl = el("p", `«${villager.dialog.dank}»`);
             dankEl.className = "villager-dialog__dank";
             panel.appendChild(dankEl);
-            // Gentle "why it worked" line
+            // Gentle "why it worked" line, with quality mention if present
             const wirkung = herbs[item.species]?.verwendung?.wirkungTraditionell;
-            if (wirkung) {
-              const whyEl = el("p", `${strings.anfragen.remedyRichtig}${wirkung}`);
+            const qualityStr = item.quality
+              ? ` ${strings.qualitaet.lieferungRichtig(strings.qualitaet[item.quality] ?? item.quality)}`
+              : "";
+            if (wirkung || qualityStr) {
+              const whyEl = el("p", `${strings.anfragen.remedyRichtig}${wirkung ?? ""}${qualityStr}`);
               whyEl.className = "villager-dialog__feedback villager-dialog__feedback--richtig";
               panel.appendChild(whyEl);
             }

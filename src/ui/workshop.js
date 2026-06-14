@@ -3,14 +3,15 @@ import { herbs } from "../data/herbs/index.js";
 import { methods } from "../data/methods.js";
 import { recipes, recipesForStation } from "../data/recipes.js";
 import { groupInventory, countItem } from "../sim/inventory.js";
-import { prepProgress } from "../sim/processing.js";
+import { prepProgress, careDueToday } from "../sim/processing.js";
 import { countZutat } from "../sim/zutaten.js";
+import { absoluteDay } from "../sim/time.js";
 
 // Workshop dialog opened when the player interacts with a station in the
 // Kräuterhäuschen. `onStartDrying`, `onStartRecipe`, `onSleep` are callbacks
 // from main.js. Returns { open(stationType, inventory, processingState, time, zutaten),
 // close(), isOpen() }.
-export function createWorkshopDialog(root, { onStartDrying, onStartRecipe, onSleep }) {
+export function createWorkshopDialog(root, { onStartDrying, onStartRecipe, onSleep, onCare }) {
   const overlay = document.createElement("div");
   overlay.className = "workshop";
   overlay.hidden = true;
@@ -20,9 +21,13 @@ export function createWorkshopDialog(root, { onStartDrying, onStartRecipe, onSle
   overlay.appendChild(panel);
   root.appendChild(overlay);
 
+  // Stored context so we can re-render in place after care actions
+  let _openContext = null;
+
   function close() {
     overlay.hidden = true;
     panel.innerHTML = "";
+    _openContext = null;
   }
 
   // ── Buchstand ─────────────────────────────────────────────────────────────
@@ -161,18 +166,66 @@ export function createWorkshopDialog(root, { onStartDrying, onStartRecipe, onSle
     heading.className = "workshop__running-label";
     section.appendChild(heading);
 
+    const today = _openContext?.time
+      ? (absoluteDay(_openContext.time))
+      : null;
+
     for (const prep of running) {
       const herb = herbs[prep.species];
+      const method = methods[prep.method];
+
+      const prepDiv = document.createElement("div");
+      prepDiv.className = "workshop__prep";
+
       const line = el("p",
         `${herb?.nameDe ?? prep.species} (${strings.teile[prep.teil]}) — `
         + `${strings.werkstatt.noch} ${prep._remaining ?? "?"} ${strings.werkstatt.tage}`
       );
-      section.appendChild(line);
+      prepDiv.appendChild(line);
+
+      // Care status and button (only for methods with care rules)
+      if (method?.care?.length > 0) {
+        for (const rule of method.care) {
+          const careCount = (prep.careLog ?? []).filter(
+            (e) => e.action === rule.action,
+          ).length;
+
+          const statusEl = el("span", strings.werkstatt.gepflegt(rule.action, careCount));
+          statusEl.className = "workshop__care-status";
+          prepDiv.appendChild(statusEl);
+
+          if (today !== null) {
+            const { actions: dueActions } = careDueToday(prep, method, today);
+            if (dueActions.includes(rule.action)) {
+              const btnLabel = strings.werkstatt.pflege[rule.action]
+                ?? `${rule.action}`;
+              const careBtn = makeBtn(btnLabel, () => {
+                onCare?.(prep.id, rule.action);
+                // Re-render the panel in place
+                if (_openContext) {
+                  workshopOpen(
+                    _openContext.stationType,
+                    _openContext.inventory,
+                    _openContext.processingState,
+                    _openContext.time,
+                    _openContext.zutaten,
+                  );
+                }
+              });
+              careBtn.className = "workshop__care-btn";
+              prepDiv.appendChild(careBtn);
+            }
+          }
+        }
+      }
+
+      section.appendChild(prepDiv);
     }
 
     frag.appendChild(section);
     return frag;
   }
+
 
   function el(tag, text) {
     const e = document.createElement(tag);
@@ -193,27 +246,32 @@ export function createWorkshopDialog(root, { onStartDrying, onStartRecipe, onSle
     return btn;
   }
 
+  function workshopOpen(stationType, inventory, processingState, time, zutaten) {
+    panel.innerHTML = "";
+    overlay.hidden = false;
+
+    // Store context for re-rendering after care button clicks
+    _openContext = { stationType, inventory, processingState, time, zutaten };
+
+    // Annotate preparations with remaining days for display
+    if (processingState) {
+      for (const prep of processingState.preparations) {
+        const { remaining } = prepProgress(prep, time);
+        prep._remaining = remaining;
+      }
+    }
+
+    if (stationType === "bett") {
+      renderBett();
+    } else if (stationType === "dachboden") {
+      renderDachboden(inventory, processingState);
+    } else {
+      renderStation(stationType, inventory, processingState, zutaten);
+    }
+  }
+
   return {
-    open(stationType, inventory, processingState, time, zutaten) {
-      panel.innerHTML = "";
-      overlay.hidden = false;
-
-      // Annotate preparations with remaining days for display
-      if (processingState) {
-        for (const prep of processingState.preparations) {
-          const { remaining } = prepProgress(prep, time);
-          prep._remaining = remaining;
-        }
-      }
-
-      if (stationType === "bett") {
-        renderBett();
-      } else if (stationType === "dachboden") {
-        renderDachboden(inventory, processingState);
-      } else {
-        renderStation(stationType, inventory, processingState, zutaten);
-      }
-    },
+    open: workshopOpen,
     close,
     isOpen() { return !overlay.hidden; },
   };

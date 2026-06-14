@@ -12,8 +12,8 @@ export function addItem(inventory, species, teil, labeledAs = null) {
   inventory.push(item);
 }
 
-export function addProcessedItem(inventory, species, teil, processed) {
-  inventory.push({ species, teil, processed });
+export function addProcessedItem(inventory, species, teil, processed, quality = "gut") {
+  inventory.push({ species, teil, processed, quality });
 }
 
 // Removes one matching item from inventory. Returns true if found.
@@ -34,11 +34,13 @@ export function countItem(inventory, species, teil, processed = null) {
   ).length;
 }
 
-// Groups items by species+teil+processed+labeledAs for display.
+// Groups items by species+teil+processed+quality+labeledAs for display.
+// Processed items with different quality levels stack separately.
 export function groupInventory(inventory) {
   const counts = new Map();
   for (const item of inventory) {
-    const key = `${item.species}:${item.teil}:${item.processed ?? ""}:${item.labeledAs ?? ""}`;
+    const qualityKey = item.processed ? (item.quality ?? "gut") : "";
+    const key = `${item.species}:${item.teil}:${item.processed ?? ""}:${qualityKey}:${item.labeledAs ?? ""}`;
     const existing = counts.get(key);
     if (existing) {
       existing.count++;
@@ -47,6 +49,7 @@ export function groupInventory(inventory) {
         species: item.species,
         teil: item.teil,
         processed: item.processed ?? null,
+        quality: item.processed ? (item.quality ?? "gut") : null,
         labeledAs: item.labeledAs ?? null,
         count: 1,
       });

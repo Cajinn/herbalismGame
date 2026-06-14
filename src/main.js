@@ -16,7 +16,7 @@ import { getActiveNpcs } from "./world/npc.js";
 import { createTime, advanceTime, advanceDay, addMinutes, absoluteDay } from "./sim/time.js";
 import { createInventory, addItem, removeItem, groupInventory } from "./sim/inventory.js";
 import { createProgress, recordSighting, recordMerkmalReveal, recordCraft, recordDelivery } from "./sim/progress.js";
-import { createProcessingState, startDrying, startRecipe, tickAndComplete } from "./sim/processing.js";
+import { createProcessingState, startDrying, startRecipe, tickAndComplete, recordCare } from "./sim/processing.js";
 import { createReputation, addVertrauen, getVillageVertrauen } from "./sim/reputation.js";
 import { createZutaten, addZutat } from "./sim/zutaten.js";
 import { createGarden, plantSeed, waterBed, harvestBed, tickGarden } from "./sim/garden.js";
@@ -462,6 +462,10 @@ const workshopDialog = createWorkshopDialog(uiRoot, {
   onStartDrying: (species, teil) => startDrying(processingState, inventory, species, teil, time),
   onStartRecipe: (recipe) => startRecipe(processingState, inventory, recipe, time, zutaten),
   onSleep: doSleep,
+  onCare: (prepId, action) => {
+    recordCare(processingState, prepId, action, time);
+    persist();
+  },
 });
 
 const book = createBook(uiRoot);
