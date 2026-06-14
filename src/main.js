@@ -535,6 +535,30 @@ function render() {
   renderBuildings(ctx, map, camera, SCALE);
   renderObjects(ctx, map, camera, SCALE);
 
+  // Garden bed overlays — draw the planted species at a scale that reflects
+  // growth stage: keimling 35%, wachsend 65%, reif 95% + gold ready-dot.
+  ctx.imageSmoothingEnabled = false;
+  for (const bedDef of (map.beds ?? [])) {
+    const bedState = garden.beds[bedDef.bedId];
+    if (!bedState) continue;
+    const herbImg = _herbSprites.get(bedState.species);
+    if (!herbImg?.complete || herbImg.naturalWidth === 0) continue;
+    const sx = Math.round((bedDef.x * map.tileSize - camera.x) * SCALE);
+    const sy = Math.round((bedDef.y * map.tileSize - camera.y) * SCALE);
+    const full = map.tileSize * SCALE;
+    const pct = bedState.stage === "keimling" ? 0.35
+              : bedState.stage === "wachsend" ? 0.65
+              : 0.95;
+    const sz  = Math.round(full * pct);
+    const pad = Math.round((full - sz) / 2);
+    ctx.drawImage(herbImg, sx + pad, sy + pad, sz, sz);
+    if (bedState.stage === "reif") {
+      ctx.fillStyle = "rgba(255,220,0,0.9)";
+      ctx.fillRect(sx + full - 5, sy + 1, 4, 4);
+    }
+  }
+  ctx.imageSmoothingEnabled = true;
+
   ctx.imageSmoothingEnabled = false;
   for (const spawn of activeSpawns) {
     const screenX = (spawn.x * map.tileSize - camera.x) * SCALE;

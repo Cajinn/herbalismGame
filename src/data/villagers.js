@@ -59,7 +59,7 @@ export const villagers = {
     nameDe: "Vreni",
     rolleDe: "Bäuerin",
     ailmentThemes: ["verdauung", "wunde", "erkaeltungHerbst"],
-    home:   { map: "dorf", x: 4,  y: 5  },
+    home:   { map: "dorf", x: 2,  y: 19 }, // Hut W (0,15), door at (1,18)
     square: { map: "dorf", x: 11, y: 9  },
     colour: "#c0392b", // bold red
     tint: 180,
@@ -79,7 +79,7 @@ export const villagers = {
     nameDe: "Ueli",
     rolleDe: "Bauer",
     ailmentThemes: ["gelenkschmerz", "husten", "gelenkschmerz2", "prellung"],
-    home:   { map: "dorf", x: 4,  y: 14 },
+    home:   { map: "dorf", x: 10, y: 19 }, // Hut CW (9,15), door at (10,18)
     square: { map: "dorf", x: 7,  y: 11 },
     colour: "#1a5276", // dark navy blue
     tint: 25,
@@ -98,7 +98,7 @@ export const villagers = {
     nameDe: "Klara",
     rolleDe: "Müllerstochter",
     ailmentThemes: ["kopfschmerz", "fruehjahrsmuedigkeit", "nervositaet"],
-    home:   { map: "dorf", x: 26, y: 8  },
+    home:   { map: "dorf", x: 17, y: 20 }, // Hut CE (15,16), door at (16,19)
     square: { map: "dorf", x: 21, y: 8  },
     colour: "#27ae60", // vivid green
     tint: 120,
@@ -118,7 +118,7 @@ export const villagers = {
     nameDe: "Res",
     rolleDe: "Schreiner",
     ailmentThemes: ["wunde", "verdauung", "gelenkschmerz2", "prellung"],
-    home:   { map: "dorf", x: 26, y: 14 },
+    home:   { map: "dorf", x: 2,  y: 20 }, // Hut SW (0,18), door at (1,21)
     square: { map: "dorf", x: 22, y: 12 },
     colour: "#8e44ad", // vivid purple
     tint: 300,
@@ -138,7 +138,7 @@ export const villagers = {
     nameDe: "Sophie",
     rolleDe: "Schmiedskind",
     ailmentThemes: ["erkaeltung", "husten", "erkaeltungHerbst"],
-    home:   { map: "dorf", x: 4,  y: 3  },
+    home:   { map: "dorf", x: 3,  y: 19 }, // near Hut W (lives with family)
     square: { map: "dorf", x: 6,  y: 8  },
     colour: "#e67e22", // warm orange
     tint: 210,
@@ -157,7 +157,7 @@ export const villagers = {
     nameDe: "Anna",
     rolleDe: "Wirtin",
     ailmentThemes: ["gelenkschmerz", "fruehjahrsmuedigkeit", "schlaflosigkeit", "nervositaet"],
-    home:   { map: "dorf", x: 24, y: 15 },
+    home:   { map: "dorf", x: 11, y: 20 }, // Hut S (10,18), door at (11,21)
     square: { map: "dorf", x: 19, y: 13 },
     colour: "#16a085", // teal/cyan — distinct from red, blue, green, purple
     tint: 160,
