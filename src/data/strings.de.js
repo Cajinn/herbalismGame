@@ -45,6 +45,7 @@ export const strings = {
   interaktion: {
     hinweis: "[E] Pflanze untersuchen",
     npc: "[E] Gespräch",
+    gebaeude: "[E] Eintreten",
   },
   teile: {
     blaetter: "Blätter",

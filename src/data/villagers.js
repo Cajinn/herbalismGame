@@ -118,7 +118,7 @@ export const villagers = {
     nameDe: "Res",
     rolleDe: "Schreiner",
     ailmentThemes: ["wunde", "verdauung", "gelenkschmerz2", "prellung"],
-    home:   { map: "dorf", x: 2,  y: 20 }, // Hut SW (0,18), door at (1,21)
+    home:   { map: "dorf", x: 1,  y: 21 }, // Hut SW (0,18), door at (1,21)
     square: { map: "dorf", x: 22, y: 12 },
     colour: "#8e44ad", // vivid purple
     tint: 300,
@@ -157,7 +157,7 @@ export const villagers = {
     nameDe: "Anna",
     rolleDe: "Wirtin",
     ailmentThemes: ["gelenkschmerz", "fruehjahrsmuedigkeit", "schlaflosigkeit", "nervositaet"],
-    home:   { map: "dorf", x: 11, y: 20 }, // Hut S (10,18), door at (11,21)
+    home:   { map: "dorf", x: 11, y: 21 }, // Hut S (10,18), door at (11,21)
     square: { map: "dorf", x: 19, y: 13 },
     colour: "#16a085", // teal/cyan — distinct from red, blue, green, purple
     tint: 160,

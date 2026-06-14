@@ -280,9 +280,10 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
         getLightbox().open(`assets/plates/${herb.plate}`, herb.nameLat ?? "");
       });
 
-      // On load error, swap to SL tile canvas (graceful fallback)
+      // On load error (missing/broken plate), fall back to the SAME sprite the
+      // plant shows on the ground — not a generic tile.
       plateImg.addEventListener("error", () => {
-        plateImg.replaceWith(buildSpriteCanvas(spawn.species));
+        plateImg.replaceWith(buildSpriteImg(spawn.species));
       });
 
       header.appendChild(plateImg);

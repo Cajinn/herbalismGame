@@ -15,13 +15,25 @@ export function loadObject(name, src) {
   _cache.set(name, img);
 }
 
+export function getObject(name) {
+  return _cache.get(name) ?? null;
+}
+
 export function renderObjects(ctx, map, camera, scale) {
   if (!map.objects?.length) return;
   const ts = map.tileSize;
   const prev = ctx.imageSmoothingEnabled;
   ctx.imageSmoothingEnabled = false;
 
-  for (const obj of map.objects) {
+  // Draw back-to-front by baseline (y + footprint height) so taller furniture
+  // nearer the camera overlaps pieces behind it. Objects flagged `flat` (floor
+  // decals like rugs) always sort behind. Stable copy — never mutate map.
+  const baseline = (o) => (o.flat ? -Infinity : o.y + (o.tileh ?? 1));
+  const ordered = map.objects
+    .map((obj, i) => ({ obj, i }))
+    .sort((a, b) => baseline(a.obj) - baseline(b.obj) || a.i - b.i);
+
+  for (const { obj } of ordered) {
     const img = _cache.get(obj.name);
     if (!img || !img.complete || img.naturalWidth === 0) continue;
 

@@ -27,19 +27,33 @@ export function resolveSprite(herb, time) {
 // scattered across the open grass of wiese, and avoid paths/bushes/borders.
 export const SPAWN_POINTS = {
   wald: [
-    { id: "wald-1", x: 13, y: 4,  species: "baerlauch" },
-    { id: "wald-2", x: 17, y: 4,  species: "maigloeckchen" },
-    { id: "wald-3", x: 13, y: 10, species: "herbstzeitlose" },
-    { id: "wald-4", x: 17, y: 10, species: "baerlauch" },
-    { id: "wald-5", x: 13, y: 16, species: "maigloeckchen" },
-    { id: "wald-6", x: 17, y: 16, species: "herbstzeitlose" },
-    { id: "wald-7", x: 14, y: 16, species: "baerlauch" },
-    // WP3
-    { id: "wald-8",  x: 10, y: 7,  species: "fichte" },
-    { id: "wald-9",  x: 20, y: 7,  species: "birke" },
-    { id: "wald-10", x: 10, y: 13, species: "fichte" },
-    { id: "wald-11", x: 20, y: 13, species: "birke" },
-    { id: "wald-12", x: 15, y: 7,  species: "holunder" },
+    // Clearing 1 (rows 3–7, cols 11–14 and 16–19)
+    { id: "wald-1",  x: 12, y: 4,  species: "baerlauch" },
+    { id: "wald-2",  x: 18, y: 4,  species: "maigloeckchen" },
+    { id: "wald-8",  x: 12, y: 6,  species: "fichte" },
+    { id: "wald-9",  x: 18, y: 6,  species: "birke" },
+    { id: "wald-12", x: 13, y: 4,  species: "holunder" },
+    { id: "wald-13", x: 16, y: 4,  species: "baerlauch" },
+    { id: "wald-14", x: 11, y: 5,  species: "maigloeckchen" },
+    { id: "wald-15", x: 19, y: 5,  species: "herbstzeitlose" },
+    { id: "wald-16", x: 14, y: 3,  species: "holunder" },
+    // Clearing 2 (rows 9–13, cols 11–14 and 16–19)
+    { id: "wald-3",  x: 13, y: 10, species: "herbstzeitlose" },
+    { id: "wald-4",  x: 17, y: 10, species: "baerlauch" },
+    { id: "wald-10", x: 12, y: 12, species: "fichte" },
+    { id: "wald-11", x: 18, y: 12, species: "birke" },
+    { id: "wald-17", x: 16, y: 9,  species: "baerlauch" },
+    { id: "wald-18", x: 11, y: 11, species: "fichte" },
+    { id: "wald-19", x: 19, y: 11, species: "birke" },
+    { id: "wald-20", x: 14, y: 13, species: "maigloeckchen" },
+    // Clearing 3 (rows 15–18, cols 11–14 and 16–19)
+    { id: "wald-5",  x: 13, y: 16, species: "maigloeckchen" },
+    { id: "wald-6",  x: 17, y: 16, species: "herbstzeitlose" },
+    { id: "wald-7",  x: 12, y: 16, species: "baerlauch" },
+    { id: "wald-21", x: 16, y: 15, species: "herbstzeitlose" },
+    { id: "wald-22", x: 12, y: 17, species: "holunder" },
+    { id: "wald-23", x: 19, y: 17, species: "baerlauch" },
+    { id: "wald-24", x: 16, y: 18, species: "maigloeckchen" },
   ],
   waldrand: [
     { id: "waldrand-1",  x: 6,  y: 3,  species: "veilchen" },

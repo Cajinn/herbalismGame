@@ -396,7 +396,6 @@ body {
   height: 96px;
   object-fit: cover;
   object-position: top center;
-  image-rendering: pixelated;
   border: 2px solid var(--wood-light);
   border-radius: 4px;
   background: var(--cream-deep);
@@ -432,7 +431,6 @@ body {
   max-width: min(800px, 92vw);
   max-height: 80vh;
   object-fit: contain;
-  image-rendering: pixelated;
   border: 3px solid var(--wood-deep);
   border-radius: 6px;
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.75),
@@ -778,4 +776,23 @@ body {
   font-size: 16px;
   padding: 11px 32px;
   margin-top: 6px;
+}
+
+.title-screen__test {
+  font-size: 11px;
+  padding: 5px 14px;
+  margin-top: 2px;
+  background: transparent;
+  border: 1px dashed var(--wood-deep);
+  color: var(--text-muted);
+  font-family: monospace;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0.6;
+}
+.title-screen__test:hover {
+  opacity: 1;
+  background: var(--wood-mid);
+  color: var(--text-cream);
 }

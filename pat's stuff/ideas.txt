@@ -1,0 +1,2 @@
+- Maybe migrate the project to https://phaser.io/
+- Needs a full design walkthough... interior is terrible, garden doesn't work, seasons, woods, water, bridge, etc.

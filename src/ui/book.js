@@ -160,19 +160,8 @@ export function createBook(root) {
     plateDiv.className = "book__plate";
 
     if (gesehen) {
-      if (herb.plate) {
-        // Botanical anatomy plate — click to open full-size lightbox.
-        const plateImg = document.createElement("img");
-        plateImg.className = "book__plate-img";
-        plateImg.src = `assets/plates/${herb.plate}`;
-        plateImg.alt = herb.nameLat ?? "";
-        plateImg.title = "Vergrößern";
-        plateImg.style.cursor = "pointer";
-        plateImg.addEventListener("click", () =>
-          getLightbox().open(`assets/plates/${herb.plate}`, herb.nameLat ?? ""));
-        plateDiv.appendChild(plateImg);
-      } else {
-        // No botanical plate: show PixelLab herb sprite, fall back to SL tile.
+      // The PixelLab herb sprite as shown on the ground (falls back to SL tile).
+      const groundSprite = () => {
         const spriteImg = document.createElement("img");
         spriteImg.className = "book__sprite-img";
         spriteImg.src = `assets/objects/herbs/${speciesId}.png`;
@@ -187,7 +176,23 @@ export function createBook(root) {
           drawTile(ctx2, atlas, idx, 0, 0, TILE_BOOK_SIZE);
           spriteImg.replaceWith(canvas);
         });
-        plateDiv.appendChild(spriteImg);
+        return spriteImg;
+      };
+      if (herb.plate) {
+        // Botanical anatomy plate — click to open full-size lightbox.
+        const plateImg = document.createElement("img");
+        plateImg.className = "book__plate-img";
+        plateImg.src = `assets/plates/${herb.plate}`;
+        plateImg.alt = herb.nameLat ?? "";
+        plateImg.title = "Vergrößern";
+        plateImg.style.cursor = "pointer";
+        plateImg.addEventListener("click", () =>
+          getLightbox().open(`assets/plates/${herb.plate}`, herb.nameLat ?? ""));
+        // Missing/broken plate → show the ground sprite instead of a blank.
+        plateImg.addEventListener("error", () => plateImg.replaceWith(groundSprite()));
+        plateDiv.appendChild(plateImg);
+      } else {
+        plateDiv.appendChild(groundSprite());
       }
     }
 

@@ -137,15 +137,14 @@ export function drawCharacter(ctx, screenX, screenY, opts, tileSize, scale) {
       const plDir = _plDir[direction] ?? "south";
       const img = dirImages[plDir];
       if (img?.complete && img.naturalWidth > 0) {
-        const destSize = SRC_FRAME * scale;
+        // Render PixelLab chars at 1.5× tile size; feet sit ~88% down the image.
+        const destSize = Math.round(tileSize * scale * 1.5);
         const footX = screenX + Math.round((tileSize * scale) / 2);
         const footY = screenY + Math.round(tileSize * scale);
         const destX = footX - Math.round(destSize / 2);
-        const destY = footY - Math.round((FEET_SRC_Y / SRC_FRAME) * destSize);
+        const destY = footY - Math.round(destSize * 0.88);
         const prev = ctx.imageSmoothingEnabled;
         ctx.imageSmoothingEnabled = false;
-        // PixelLab canvas is ~40% taller than SRC_FRAME; draw at destSize square
-        // to match the SL sheet footprint — the extra canvas height is empty space.
         ctx.drawImage(img, destX, destY, destSize, destSize);
         ctx.imageSmoothingEnabled = prev;
         return;

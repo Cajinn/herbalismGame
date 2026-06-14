@@ -1,6 +1,6 @@
 import { SCALE, VIEWPORT_TILES_X, VIEWPORT_TILES_Y } from "./engine/config.js";
 import { loadTileset, drawTile } from "./engine/tileset.js";
-import { loadObject, renderObjects } from "./engine/objects.js";
+import { loadObject, renderObjects, getObject } from "./engine/objects.js";
 import { startLoop } from "./engine/loop.js";
 import { initInput, consumeJustPressed } from "./engine/input.js";
 import { createCamera, updateCamera } from "./engine/camera.js";
@@ -13,8 +13,8 @@ import { loadMap } from "./world/mapLoader.js";
 import { createPlayer, updatePlayer } from "./world/player.js";
 import { getActiveSpawns } from "./world/plantSpawns.js";
 import { getActiveNpcs } from "./world/npc.js";
-import { createTime, advanceTime, advanceDay, addMinutes } from "./sim/time.js";
-import { createInventory, addItem, removeItem } from "./sim/inventory.js";
+import { createTime, advanceTime, advanceDay, addMinutes, absoluteDay } from "./sim/time.js";
+import { createInventory, addItem, removeItem, groupInventory } from "./sim/inventory.js";
 import { createProgress, recordSighting, recordMerkmalReveal, recordCraft, recordDelivery } from "./sim/progress.js";
 import { createProcessingState, startDrying, startRecipe, tickAndComplete } from "./sim/processing.js";
 import { createReputation, addVertrauen, getVillageVertrauen } from "./sim/reputation.js";
@@ -34,6 +34,7 @@ import { createMapPanel } from "./ui/map.js";
 import { createDepositPanel } from "./ui/deposit.js";
 import { createTitleScreen } from "./ui/title.js";
 import { createVillagerStatus, tickVillagerStatus, makeVillagerSick } from "./sim/villagerStatus.js";
+import { methods } from "./data/methods.js";
 import { strings } from "./data/strings.de.js";
 import { herbs } from "./data/herbs/index.js";
 import { villagers } from "./data/villagers.js";
@@ -66,10 +67,14 @@ loadTileset("plants",    "assets/tiles/sprout/plants.png",        6);
 
 // PixelLab Wang tilesets (4 cols × 4 rows = 16 tiles each).
 // pl_gp: grass↔path transitions. Lower=dirt path, upper=lush grass.
-// pl_gw: grass↔water transitions. Lower=brook water, upper=lush grass.
+// pl_gw: grass↔water transitions. Lower=alpine stream, upper=lush grass.
+// pl_gf: grass↔forest transitions. Lower=mossy forest floor, upper=lush grass.
+// pl_gr: grass↔rock transitions. Lower=grey alpine rock, upper=lush grass.
 // pl_gt: grass↔tilled transitions. Lower=tilled earth, upper=lush grass.
 loadTileset("pl_gp",     "assets/tiles/pixellab/terrain_gp.png",   4);
-loadTileset("pl_gw",     "assets/tiles/pixellab/grass_water.png",  4);
+loadTileset("pl_gw",     "assets/tiles/pixellab/terrain_gw.png",   4);
+loadTileset("pl_gf",     "assets/tiles/pixellab/terrain_gf.png",   4);
+loadTileset("pl_gr",     "assets/tiles/pixellab/terrain_gr.png",   4);
 loadTileset("pl_gt",     "assets/tiles/pixellab/grass_tilled.png", 4);
 
 // PixelLab map objects (transparent-background PNGs).
@@ -83,6 +88,60 @@ loadObject("hut_a",            "assets/objects/hut_a.png");
 loadObject("hut_b",            "assets/objects/hut_b.png");
 loadObject("herbalist_house",  "assets/objects/herbalist_house.png");
 loadObject("shop",             "assets/objects/shop.png");
+// Environment decoration sprites (one "primary" variant per category for active maps)
+loadObject("rocks",       "assets/objects/env/rocks/rocks_0.png");
+loadObject("wildflowers", "assets/objects/env/wildflowers/wildflowers_0.png");
+loadObject("fern",        "assets/objects/env/ferns/fern_0.png");
+loadObject("tree_stump",  "assets/objects/env/stumps/stump_0.png");
+loadObject("fallen_log",  "assets/objects/env/logs/log_0.png");
+loadObject("shrub",       "assets/objects/env/shrub/shrub_0.png");
+loadObject("bridge",      "assets/objects/bridge.png");
+loadObject("garden_plot_3x3", "assets/objects/garden_plot_3x3.png");
+loadObject("garden_plot_2x3", "assets/objects/garden_plot_2x3.png");
+loadObject("forest_pine", "assets/objects/env/forest_pine.png");
+loadObject("forest_oak",  "assets/objects/env/forest_oak.png");
+loadObject("mushrooms",   "assets/objects/interior/mushrooms/mushrooms_0.png");
+loadObject("stream_reeds","assets/objects/interior/stream_reeds/stream_reeds_0.png");
+// Interior furniture (kraeuterhaeuschen + laden)
+loadObject("herb_shelf",    "assets/objects/interior/herb_shelf/herb_shelf_0.png");
+loadObject("fireplace",     "assets/objects/interior/fireplace/fireplace_0.png");
+loadObject("mortar_pestle", "assets/objects/interior/mortar_pestle/mortar_pestle_0.png");
+loadObject("bookshelf",     "assets/objects/interior/bookshelf/bookshelf_0.png");
+loadObject("herb_window",   "assets/objects/interior/herb_window/herb_window_0.png");
+loadObject("bed",           "assets/objects/interior/bed/bed_0.png");
+loadObject("shop_counter",  "assets/objects/interior/shop_counter/shop_counter_0.png");
+loadObject("shop_barrels",  "assets/objects/interior/shop_barrels/shop_barrels_0.png");
+loadObject("work_table",    "assets/objects/interior/work_table/work_table_0.png");
+loadObject("shop_crates",   "assets/objects/interior/shop_crates/shop_crates_0.png");
+// Dorfladen (laden) grocery sprites — warm wood, colorful produce.
+loadObject("produce_shelf",   "assets/objects/interior/laden/produce_shelf.png");
+loadObject("produce_baskets", "assets/objects/interior/laden/produce_baskets.png");
+loadObject("grain_sacks",     "assets/objects/interior/laden/grain_sacks.png");
+loadObject("bread_shelf",     "assets/objects/interior/laden/bread_shelf.png");
+// Testhuette interior sprites (dev test room) — warm-wood apothecary, V2.
+// Base furniture render EMPTY; the stateful content layer (map.content) adds
+// jars/bundles/glow on top from game state. See src/data/maps/kraeuterhaeuschen.js.
+loadObject("th_floor",       "assets/objects/interior/testhuette/floor_planks.png");
+loadObject("th_rug",         "assets/objects/interior/testhuette/rug.png");
+loadObject("th_door",        "assets/objects/interior/testhuette/door.png");
+loadObject("th_shelf",       "assets/objects/interior/testhuette/storage_shelf.png");
+loadObject("th_oven",        "assets/objects/interior/testhuette/oven_wood.png");
+loadObject("th_rack",        "assets/objects/interior/testhuette/drying_rack_v2.png");
+loadObject("th_work_desk",   "assets/objects/interior/testhuette/work_desk.png");
+loadObject("th_mortar_desk", "assets/objects/interior/testhuette/mortar_desk_v2.png");
+loadObject("th_bookstand",   "assets/objects/interior/testhuette/book_stand.png");
+// Content-layer sprites (small, repeated per unit of state)
+loadObject("th_c_jar",       "assets/objects/interior/testhuette/c_jar.png");
+loadObject("th_c_bundle",    "assets/objects/interior/testhuette/c_bundle.png");
+loadObject("th_c_hang",      "assets/objects/interior/testhuette/c_hang_bundle.png");
+loadObject("th_c_herbs",     "assets/objects/interior/testhuette/c_herbs.png");
+loadObject("th_plant",       "assets/objects/interior/testhuette/potted_herb.png");
+loadObject("th_stool",       "assets/objects/interior/testhuette/stool.png");
+loadObject("th_window",      "assets/objects/interior/testhuette/wall_window.png");
+loadObject("th_cabinet",     "assets/objects/interior/testhuette/jar_cabinet.png");
+loadObject("th_hearth",      "assets/objects/interior/testhuette/hearth.png");
+loadObject("th_trough",      "assets/objects/interior/testhuette/herb_trough.png");
+loadObject("th_flower",      "assets/objects/interior/testhuette/potted_flower.png");
 
 // PixelLab per-character sprites (4 cardinal directions each).
 // Keys match villager id fields in villagers.js; "herbalist" reserved for player.
@@ -184,8 +243,13 @@ canvas.height = VIEWPORT_TILES_Y * map.tileSize * SCALE;
 
 initInput();
 
+// Effective render scale. Outdoor maps render at SCALE (whole map fits / scrolls
+// as before). Interiors set `zoom` (>1) to render bigger and more intimate; the
+// camera then shows fewer tiles and follows the player. Canvas size is constant.
+let viewScale = SCALE * (map.zoom ?? 1);
+
 let { width: mapWidth, height: mapHeight } = mapPixelSize(map);
-const camera = createCamera(canvas.width / SCALE, canvas.height / SCALE);
+const camera = createCamera(canvas.width / viewScale, canvas.height / viewScale);
 updateCamera(camera, player, mapWidth, mapHeight);
 
 let activeSpawns = [];
@@ -235,21 +299,30 @@ function onDayComplete() {
   if (newOpen > prevOpen) hud.showMessage(strings.meldungen.neueAnfragen);
 }
 
+function doTransition(exit) {
+  map = loadMap(exit.target);
+  player.x = exit.spawn.x * map.tileSize;
+  player.y = exit.spawn.y * map.tileSize;
+  ({ width: mapWidth, height: mapHeight } = mapPixelSize(map));
+  // Re-zoom for the new map (interiors zoom in, outdoors reset to SCALE).
+  viewScale = SCALE * (map.zoom ?? 1);
+  camera.width = canvas.width / viewScale;
+  camera.height = canvas.height / viewScale;
+}
+
 function checkExit() {
   const tx = Math.floor((player.x + player.width / 2) / map.tileSize);
   const ty = Math.floor((player.y + player.height / 2) / map.tileSize);
   const exit = map.exits?.find((e) => e.x === tx && e.y === ty);
   if (!exit) return;
+  if (exit.keyEnter) return; // handled by updateInteractables
 
   if (exit.target === "alpweide" && !quests.alpweideUnlocked) {
     hud.showMessage(strings.quest.alpweideGesperrt);
     return;
   }
 
-  map = loadMap(exit.target);
-  player.x = exit.spawn.x * map.tileSize;
-  player.y = exit.spawn.y * map.tileSize;
-  ({ width: mapWidth, height: mapHeight } = mapPixelSize(map));
+  doTransition(exit);
 }
 
 // Checks for nearby plants, stations, garden beds, and NPCs, shows the
@@ -275,7 +348,20 @@ function updateInteractables() {
     (n) => Math.abs(n.x - tx) <= 1 && Math.abs(n.y - ty) <= 1,
   );
 
-  if (nearbySpawn) {
+  const nearbyKeyExit = map.exits?.find(
+    (e) => e.keyEnter && e.x === tx && e.y === ty,
+  );
+
+  if (nearbyKeyExit) {
+    hud.setPrompt(strings.interaktion.gebaeude);
+    if (consumeJustPressed("interact")) {
+      if (nearbyKeyExit.target === "alpweide" && !quests.alpweideUnlocked) {
+        hud.showMessage(strings.quest.alpweideGesperrt);
+      } else {
+        doTransition(nearbyKeyExit);
+      }
+    }
+  } else if (nearbySpawn) {
     hud.setPrompt(strings.interaktion.hinweis);
     if (consumeJustPressed("interact")) {
       recordSighting(progress, nearbySpawn.species);
@@ -494,12 +580,7 @@ const depositPanel = createDepositPanel(uiRoot, {
 });
 
 const titleScreen = createTitleScreen(uiRoot);
-if (!introSeen) {
-  titleScreen.show(() => {
-    introSeen = true;
-    persist();
-  });
-}
+titleScreen.show(() => { introSeen = true; persist(); });
 
 function update(dt) {
   if (titleScreen.isVisible()) return;
@@ -534,31 +615,106 @@ function update(dt) {
 }
 
 function render() {
+  // Local SCALE = the map's effective (zoomed) scale for this whole frame.
+  const SCALE = viewScale;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   renderMap(ctx, map, camera, SCALE);
   renderBuildings(ctx, map, camera, SCALE);
   renderObjects(ctx, map, camera, SCALE);
 
-  // Garden bed overlays — draw the planted species at a scale that reflects
-  // growth stage: keimling 35%, wachsend 65%, reif 95% + gold ready-dot.
+  // Stateful interior content — furniture fills with what the player actually
+  // has. Base furniture sprites render EMPTY; these overlays add the contents,
+  // scaling with game state. Driven by map.content layers (see kraeuterhaeuschen.js):
+  //   kind "fill"  → draw one sprite per unit into fixed slots (capped at slots)
+  //   kind "glow"  → warm ember glow when a station has an active preparation
+  if (map.content) {
+    ctx.imageSmoothingEnabled = false;
+    const storageGroups = groupInventory(inventory).length;        // distinct stored herbs
+    const dryingCount = processingState.preparations
+      .filter((p) => p.method === "trocknen").length;
+    const stationActive = (st) =>
+      processingState.preparations.some((p) => methods[p.method]?.station === st);
+
+    for (const layer of map.content) {
+      if (layer.kind === "fill") {
+        // source: "storage" → distinct stored herbs; "drying" → herbs on the
+        // rack; any other string → preparations whose method runs at that station
+        // (e.g. "sonnenfenster" → herbs drying in the window).
+        const count = layer.source === "storage" ? storageGroups
+                    : layer.source === "drying"  ? dryingCount
+                    : processingState.preparations
+                        .filter((p) => methods[p.method]?.station === layer.source).length;
+        const n = Math.min(count, layer.slots.length);
+        const names = Array.isArray(layer.sprite) ? layer.sprite : [layer.sprite];
+        const sz = (layer.size ?? 1) * map.tileSize * SCALE;
+        for (let i = 0; i < n; i++) {
+          const img = getObject(names[i % names.length]);
+          if (!img?.complete || img.naturalWidth === 0) continue;
+          const [tx, ty] = layer.slots[i];
+          const sx = Math.round((tx * map.tileSize - camera.x) * SCALE);
+          const sy = Math.round((ty * map.tileSize - camera.y) * SCALE);
+          ctx.drawImage(img, sx, sy, sz, sz);
+        }
+      } else if (layer.kind === "glow") {
+        if (!stationActive(layer.source)) continue;
+        const [tx, ty, rTiles] = layer.at;
+        const cx = (tx * map.tileSize - camera.x) * SCALE;
+        const cy = (ty * map.tileSize - camera.y) * SCALE;
+        const r = rTiles * map.tileSize * SCALE;
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        grad.addColorStop(0, "rgba(255,170,60,0.55)");
+        grad.addColorStop(1, "rgba(255,120,0,0)");
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.fillStyle = grad;
+        ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+        ctx.restore();
+      }
+    }
+    ctx.imageSmoothingEnabled = true;
+  }
+
+  // Garden bed overlays — visual state per bed:
+  //   empty       → bare soil (garden_plot PNG only, no overlay)
+  //   keimling    → tiny sprite (35%), yellow-tinted if needs water
+  //   wachsend    → mid sprite (65%), faded if needs water
+  //   reif        → full sprite (95%) + gold ready-dot
+  //   any + dry   → small blue water-drop indicator in corner
   ctx.imageSmoothingEnabled = false;
   for (const bedDef of (map.beds ?? [])) {
     const bedState = garden.beds[bedDef.bedId];
-    if (!bedState) continue;
-    const herbImg = _herbSprites.get(bedState.species);
-    if (!herbImg?.complete || herbImg.naturalWidth === 0) continue;
+    if (!bedState) continue;                          // empty bed — no overlay
     const sx = Math.round((bedDef.x * map.tileSize - camera.x) * SCALE);
     const sy = Math.round((bedDef.y * map.tileSize - camera.y) * SCALE);
     const full = map.tileSize * SCALE;
-    const pct = bedState.stage === "keimling" ? 0.35
-              : bedState.stage === "wachsend" ? 0.65
-              : 0.95;
-    const sz  = Math.round(full * pct);
-    const pad = Math.round((full - sz) / 2);
-    ctx.drawImage(herbImg, sx + pad, sy + pad, sz, sz);
+    const needsWater = absoluteDay(time) - (bedState.lastWateredDay ?? 0) > 2;
+    const herbImg = _herbSprites.get(bedState.species);
+    if (herbImg?.complete && herbImg.naturalWidth > 0) {
+      const pct = bedState.stage === "keimling" ? 0.35
+                : bedState.stage === "wachsend" ? 0.65
+                : 0.95;
+      const sz  = Math.round(full * pct);
+      const pad = Math.round((full - sz) / 2);
+      if (needsWater) ctx.globalAlpha = 0.55;
+      ctx.drawImage(herbImg, sx + pad, sy + pad, sz, sz);
+      ctx.globalAlpha = 1;
+    }
     if (bedState.stage === "reif") {
       ctx.fillStyle = "rgba(255,220,0,0.9)";
       ctx.fillRect(sx + full - 5, sy + 1, 4, 4);
+    }
+    if (needsWater) {
+      // Water-drop indicator: small blue teardrop in top-left corner
+      ctx.fillStyle = "rgba(80,160,255,0.85)";
+      ctx.beginPath();
+      ctx.arc(sx + 4, sy + 6, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(sx + 4, sy + 1);
+      ctx.lineTo(sx + 7, sy + 6);
+      ctx.lineTo(sx + 1, sy + 6);
+      ctx.closePath();
+      ctx.fill();
     }
   }
   ctx.imageSmoothingEnabled = true;
@@ -570,7 +726,9 @@ function render() {
     const sz = map.tileSize * SCALE;
     const herbImg = _herbSprites.get(spawn.species);
     if (herbImg?.complete && herbImg.naturalWidth > 0) {
-      ctx.drawImage(herbImg, screenX, screenY, sz, sz);
+      // Crop bottom 15% to remove species-name label baked into PixelLab PNGs.
+      const cropH = Math.round(herbImg.naturalHeight * 0.85);
+      ctx.drawImage(herbImg, 0, 0, herbImg.naturalWidth, cropH, screenX, screenY, sz, sz);
     } else {
       const [htAtlas, htIdx] = herbTile(spawn.species);
       drawTile(ctx, htAtlas, htIdx, screenX, screenY, sz);
@@ -585,6 +743,18 @@ function render() {
   }
 
   drawPlayer(ctx, player, camera, map.tileSize, SCALE);
+
+  // Ambient interior tint — opt-in per map (map.ambient). A subtle warm multiply
+  // makes interiors feel intimate and lamp-lit vs the bright outdoors. Outdoor
+  // maps omit the field and render unchanged.
+  if (map.ambient) {
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.globalAlpha = map.ambient.alpha ?? 0.12;
+    ctx.fillStyle = map.ambient.tint ?? "#6a4525";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
 }
 
 startLoop(update, render);

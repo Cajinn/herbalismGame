@@ -9,7 +9,9 @@
 //   terrain: "path"|"bed"      — auto-tiled with blob tiles from "dirt" atlas
 //
 // Fallback: def.color fills the tile when no atlas is ready.
+// img: "spriteName" — tiles the named PNG (loaded via loadObject) across the tile.
 import { drawTile } from "./tileset.js";
+import { getObject } from "./objects.js";
 import { computeBitmask, dirtBlobIndex, pathFringeIndex, grassWangIndex } from "./autotile.js";
 import { buildingSolidAt } from "./buildings.js";
 
@@ -54,20 +56,32 @@ export function renderMap(ctx, map, camera, scale) {
       ctx.fillStyle = def.color;
       ctx.fillRect(screenX, screenY, scaledTile, scaledTile);
 
-      if (def.wang) {
-        if (def.terrain === "path") {
-          // Path tile in the Wang system: always pure path (wang_0 = index 6).
-          const drawn = drawTile(ctx, def.wang, 6, screenX, screenY, scaledTile);
-          if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
-        } else if (def.terrain === "bed") {
+      if (def.img) {
+        // Custom tile image (loaded via loadObject) — tiles the PNG across the tile.
+        // Takes precedence over wang/t rendering. Falls back to color if not loaded.
+        const tileImg = getObject(def.img);
+        if (tileImg?.complete && tileImg.naturalWidth > 0) {
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(tileImg, screenX, screenY, scaledTile, scaledTile);
+          ctx.imageSmoothingEnabled = true;
+        }
+      } else if (def.wang) {
+        // Each Wang atlas transitions against a specific "lower" terrain class.
+        const WANG_LOWER = { pl_gp: "path", pl_gw: "water", pl_gf: "forest", pl_gr: "rock" };
+        const lowerClass = WANG_LOWER[def.wang] ?? "path";
+        if (def.terrain === "bed") {
           // Bed tiles: keep SL blob approach; Wang atlas not used for beds.
           const bitmask = computeBitmask(map, tx, ty, "bed");
           const drawn = drawTile(ctx, "dirt", dirtBlobIndex(bitmask), screenX, screenY, scaledTile);
           if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
+        } else if (def.terrain === lowerClass) {
+          // "Lower" terrain tile: draw pure lower tile (wang_0 = index 6).
+          const drawn = drawTile(ctx, def.wang, 6, screenX, screenY, scaledTile);
+          if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
         } else {
-          // Grass (or other non-terrain) tile: Wang transition based on path neighbors.
-          const pathMask = computeBitmask(map, tx, ty, "path");
-          const drawn = drawTile(ctx, def.wang, grassWangIndex(pathMask), screenX, screenY, scaledTile);
+          // "Upper" terrain tile: Wang transition based on lower-terrain neighbors.
+          const mask = computeBitmask(map, tx, ty, lowerClass);
+          const drawn = drawTile(ctx, def.wang, grassWangIndex(mask), screenX, screenY, scaledTile);
           if (!drawn && def.t) drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
         }
       } else if (def.terrain === "path" || def.terrain === "bed") {
