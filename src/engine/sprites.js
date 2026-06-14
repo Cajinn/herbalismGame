@@ -232,6 +232,6 @@ export function drawPlayer(ctx, player, camera, tileSize, scale) {
   drawCharacter(ctx, screenX, screenY, {
     direction: player.direction,
     moving:    player.moving,
-    // no colour → player uses the raw (untinted) sheet
+    plCharKey: "herbalist",
   }, tileSize, scale);
 }

@@ -231,9 +231,8 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
     }
   }
 
-  // Builds a 96×96 canvas showing the herb's Sprout Lands tile.
-  // speciesKey is the registry key (e.g. "baerlauch") used for the tile lookup.
-  const TILE_PREVIEW_SIZE = 96; // 16 px source → 96 px preview (6×)
+  const TILE_PREVIEW_SIZE = 96;
+
   function buildSpriteCanvas(speciesKey) {
     const canvas = document.createElement("canvas");
     canvas.className = "identify__sprite";
@@ -244,6 +243,16 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
     const [atlas, idx] = herbTile(speciesKey);
     drawTile(spriteCtx, atlas, idx, 0, 0, TILE_PREVIEW_SIZE);
     return canvas;
+  }
+
+  // Returns an <img> for the PixelLab herb PNG, falling back to SL tile canvas.
+  function buildSpriteImg(speciesKey) {
+    const img = document.createElement("img");
+    img.className = "identify__sprite";
+    img.src = `assets/objects/herbs/${speciesKey}.png`;
+    img.alt = "";
+    img.addEventListener("error", () => img.replaceWith(buildSpriteCanvas(speciesKey)));
+    return img;
   }
 
   function render(spawn) {
@@ -278,7 +287,7 @@ export function createIdentifyDialog(root, { progress, onExamine, onHarvest }) {
 
       header.appendChild(plateImg);
     } else {
-      header.appendChild(buildSpriteCanvas(spawn.species));
+      header.appendChild(buildSpriteImg(spawn.species));
     }
 
     const standort = document.createElement("dl");

@@ -9,6 +9,32 @@ import {
 import { drawTile } from "../engine/tileset.js";
 import { herbTile } from "../data/herbTiles.js";
 
+// Singleton lightbox (shared with identify.js logic — same pattern).
+let _lightbox = null;
+function getLightbox() {
+  if (_lightbox) return _lightbox;
+  const overlay = document.createElement("div");
+  overlay.className = "plate-lightbox";
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("role", "dialog");
+  overlay.hidden = true;
+  const img = document.createElement("img");
+  img.className = "plate-lightbox__img";
+  img.alt = "";
+  const hint = document.createElement("p");
+  hint.className = "plate-lightbox__hint";
+  hint.textContent = "Klicken oder Esc zum Schließen";
+  overlay.append(img, hint);
+  document.body.appendChild(overlay);
+  const close = () => { overlay.hidden = true; img.src = ""; };
+  overlay.addEventListener("click", close);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) close();
+  });
+  _lightbox = { open(src, alt) { img.src = src; img.alt = alt ?? ""; overlay.hidden = false; } };
+  return _lightbox;
+}
+
 const MERKMALE_ORDER = ["blattform", "blattstellung", "bluete", "geruch", "stengel", "wuchshoehe"];
 const TILE_BOOK_SIZE = 64; // 16px source → 64px in book (4×)
 
@@ -133,22 +159,36 @@ export function createBook(root) {
     const plateDiv = document.createElement("div");
     plateDiv.className = "book__plate";
 
-    // Try to load real plate via CSS background-image, fallback gracefully
-    if (herb.plate) {
-      plateDiv.style.backgroundImage = `url('assets/plates/${herb.plate}')`;
-    }
-
-    // Tile preview always shown if gesehen
     if (gesehen) {
-      const canvas = document.createElement("canvas");
-      canvas.className = "book__sprite";
-      canvas.width  = TILE_BOOK_SIZE;
-      canvas.height = TILE_BOOK_SIZE;
-      const ctx = canvas.getContext("2d");
-      ctx.imageSmoothingEnabled = false;
-      const [atlas, idx] = herbTile(speciesId);
-      drawTile(ctx, atlas, idx, 0, 0, TILE_BOOK_SIZE);
-      plateDiv.appendChild(canvas);
+      if (herb.plate) {
+        // Botanical anatomy plate — click to open full-size lightbox.
+        const plateImg = document.createElement("img");
+        plateImg.className = "book__plate-img";
+        plateImg.src = `assets/plates/${herb.plate}`;
+        plateImg.alt = herb.nameLat ?? "";
+        plateImg.title = "Vergrößern";
+        plateImg.style.cursor = "pointer";
+        plateImg.addEventListener("click", () =>
+          getLightbox().open(`assets/plates/${herb.plate}`, herb.nameLat ?? ""));
+        plateDiv.appendChild(plateImg);
+      } else {
+        // No botanical plate: show PixelLab herb sprite, fall back to SL tile.
+        const spriteImg = document.createElement("img");
+        spriteImg.className = "book__sprite-img";
+        spriteImg.src = `assets/objects/herbs/${speciesId}.png`;
+        spriteImg.alt = herb.nameLat ?? "";
+        spriteImg.addEventListener("error", () => {
+          const canvas = document.createElement("canvas");
+          canvas.className = "book__sprite";
+          canvas.width = TILE_BOOK_SIZE; canvas.height = TILE_BOOK_SIZE;
+          const ctx2 = canvas.getContext("2d");
+          ctx2.imageSmoothingEnabled = false;
+          const [atlas, idx] = herbTile(speciesId);
+          drawTile(ctx2, atlas, idx, 0, 0, TILE_BOOK_SIZE);
+          spriteImg.replaceWith(canvas);
+        });
+        plateDiv.appendChild(spriteImg);
+      }
     }
 
     left.appendChild(plateDiv);
