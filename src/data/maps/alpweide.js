@@ -13,9 +13,9 @@ export const alpweide = {
   tileSize: 16,
   biotope: "alpweide",
   legend: {
-    ".": { tile: "alm",     solid: false, color: "#bcd98f", t: ["grass", 55] },
-    ",": { tile: "alm2",    solid: false, color: "#c5e0a0", t: ["grass", 56] },
-    "#": { tile: "pfad",    solid: false, color: "#c8aa7a", t: ["dirt",  55], terrain: "path" },
+    ".": { tile: "alm",     solid: false, color: "#bcd98f", wang: "pl_gp" },
+    ",": { tile: "alm2",    solid: false, color: "#c5e0a0", wang: "pl_gp" },
+    "#": { tile: "pfad",    solid: false, color: "#c8aa7a", wang: "pl_gp", terrain: "path" },
     "R": { tile: "fels",    solid: true,  color: "#9e9e9e", t: ["biom",  41] },
     "B": { tile: "strauch", solid: true,  color: "#8bc34a", t: ["biom",  39] },
     // Alpine hut — roof (house cols 5-6)

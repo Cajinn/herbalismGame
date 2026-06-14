@@ -16,9 +16,9 @@ export const waldrand = {
   tileSize: 16,
   biotope: "waldrand",
   legend: {
-    ".": { tile: "wiese",     solid: false, color: "#8bc34a", t: ["grass", 55] },
-    ",": { tile: "wiese2",    solid: false, color: "#7cb342", t: ["grass", 56] },
-    "#": { tile: "pfad",      solid: false, color: "#c8aa7a", t: ["dirt",  55], terrain: "path" },
+    ".": { tile: "wiese",     solid: false, color: "#8bc34a", wang: "pl_gp" },
+    ",": { tile: "wiese2",    solid: false, color: "#7cb342", wang: "pl_gp" },
+    "#": { tile: "pfad",      solid: false, color: "#c8aa7a", wang: "pl_gp", terrain: "path" },
     "~": { tile: "wasser",    solid: true,  color: "#4fc3f7", t: ["water",  0] },
     "=": { tile: "bruecke",   solid: false, color: "#c8a06a", t: ["bridge", 8] },
     "T": { tile: "baum",      solid: true,  color: "#558b2f", t: ["biom",  39] },

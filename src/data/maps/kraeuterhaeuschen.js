@@ -5,7 +5,7 @@
 //   house[10]     = door mid panel (brown door with handle)          → deur
 // Each station gets a distinct recognisable furniture sprite.
 //
-// furniture[12]  = green lamp/potted plant     → dachboden (drying rack)
+// drying_rack PNG (PixelLab) rendered as map object over D tiles → dachboden
 // furniture[32]  = clock                       → herd (stove)
 // furniture[30]  = small square cabinet        → moerser (mortar)
 // furniture[21]  = tall dresser/chest-drawers  → vorratsregal (storage)
@@ -22,7 +22,7 @@ export const kraeuterhaeuschen = {
     ".": { tile: "boden",     solid: false, color: "#d7ccc8", t: ["dirt",  12] },
     "W": { tile: "wand",      solid: true,  color: "#5d4037", t: ["house", 15] },
     "F": { tile: "deur",      solid: false, color: "#a1887f", t: ["house", 10] },
-    "D": { tile: "dachboden", solid: true,  color: "#8d6e63", t: ["furniture", 12] },
+    "D": { tile: "dachboden", solid: true,  color: "#a0856b" },
     "H": { tile: "herd",      solid: true,  color: "#616161", t: ["furniture", 32] },
     "M": { tile: "moerser",   solid: true,  color: "#8d6e63", t: ["furniture", 30] },
     "R": { tile: "regal",     solid: true,  color: "#795548", t: ["furniture", 21] },
@@ -50,6 +50,11 @@ export const kraeuterhaeuschen = {
   exits: [
     { x: 9, y: 11, target: "dorf", spawn: { x: 22, y: 8 } },
   ],
+  // PixelLab PNG objects rendered over terrain, before characters.
+  objects: [
+    { name: "drying_rack", x: 2, y: 2, tilew: 3, tileh: 2 },
+  ],
+
   stations: [
     { x: 5,  y: 2,  type: "dachboden"    },
     { x: 16, y: 2,  type: "herd"         },
