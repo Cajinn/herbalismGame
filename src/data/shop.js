@@ -1,5 +1,7 @@
 // Dorfladen catalog (PLAN.md §16 — balance freely). kind: "zutat" | "seed".
 // ref matches the key in zutaten / seeds / herbs registry.
+// WP4b: `stock` = Hard Mode starting stock / max. Only on kind "zutat" and "produce".
+// Seeds omit `stock` entirely (unlimited — buy once to cultivate).
 export const shopCatalog = [
   {
     id: "shop-schnaps",
@@ -8,6 +10,7 @@ export const shopCatalog = [
     nameDe: "Schnaps (40 %)",
     descDe: "Für Tinkturen — 250 ml Kräuterschnaps",
     preis: 12,
+    stock: 3,
   },
   {
     id: "shop-olivenoel",
@@ -16,6 +19,7 @@ export const shopCatalog = [
     nameDe: "Olivenöl",
     descDe: "Für Ölauszüge — 250 ml kaltgepresstes Öl",
     preis: 8,
+    stock: 3,
   },
   {
     id: "shop-bienenwachs",
@@ -24,6 +28,7 @@ export const shopCatalog = [
     nameDe: "Bienenwachs",
     descDe: "Für Salben — 50 g reines Bienenwachs",
     preis: 6,
+    stock: 2,
   },
   {
     id: "shop-ringelblume-samen",
@@ -107,6 +112,7 @@ export const shopCatalog = [
     nameDe: "Enzianwurzel (getrocknet)",
     descDe: "Kultivierte Wurzel — bitter und kräftig. Wild geschützt, hier legal erhältlich.",
     preis: 14,
+    stock: 2,
   },
   // ── Küchenzutaten ───────────────────────────────────────────────────────────
   {
@@ -117,6 +123,7 @@ export const shopCatalog = [
     nameDe: "Zwiebel",
     descDe: "Für Zwiebelsirup bei Husten — wächst hier nicht wild",
     preis: 2,
+    stock: 5,
   },
   {
     id: "shop-honig",
@@ -125,6 +132,7 @@ export const shopCatalog = [
     nameDe: "Honig (Blütenhonig)",
     descDe: "Für Honigauszüge — 100 g lokaler Blütenhonig",
     preis: 5,
+    stock: 4,
   },
   {
     id: "shop-zucker",
@@ -133,6 +141,7 @@ export const shopCatalog = [
     nameDe: "Zucker",
     descDe: "Für Sirupe — 100 g Kristallzucker",
     preis: 2,
+    stock: 5,
   },
   {
     id: "shop-zitrone",
@@ -142,5 +151,6 @@ export const shopCatalog = [
     nameDe: "Zitrone",
     descDe: "Bei Erkältung — kommt von weither, nicht aus der Schweiz",
     preis: 3,
+    stock: 4,
   },
 ];

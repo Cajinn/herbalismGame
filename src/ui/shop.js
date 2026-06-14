@@ -1,8 +1,8 @@
 import { strings } from "../data/strings.de.js";
 import { shopCatalog } from "../data/shop.js";
 
-// Dorfladen dialog. onBuy(item, preis) → bool (false = not enough coins).
-// Returns { open(coins), close(), isOpen() }.
+// Dorfladen dialog. onBuy(item, preis) → bool (false = not enough coins or sold out).
+// Returns { open(coins, { hardMode, stock }), close(), isOpen() }.
 export function createShopDialog(root, { onBuy }) {
   const overlay = document.createElement("div");
   overlay.className = "shop-dialog";
@@ -14,6 +14,8 @@ export function createShopDialog(root, { onBuy }) {
   root.appendChild(overlay);
 
   let _coins = 0;
+  let _hardMode = false;
+  let _stock = {};
 
   function close() {
     overlay.hidden = true;
@@ -53,9 +55,27 @@ export function createShopDialog(root, { onBuy }) {
       const preisEl = el("span", `${item.preis} Münzen`);
       preisEl.className = "shop-dialog__item-preis";
 
+      // WP4b: In Hard Mode, show stock count / sold-out state for tracked items.
+      const isTracked = _hardMode && item.stock != null;
+      const remaining = isTracked ? (_stock[item.id] ?? 0) : Infinity;
+      const soldOut = isTracked && remaining <= 0;
+
+      if (isTracked) {
+        const stockEl = document.createElement("span");
+        stockEl.className = "shop-dialog__item-stock";
+        if (soldOut) {
+          stockEl.textContent = strings.laden.ausverkauft;
+          stockEl.classList.add("shop-dialog__item-stock--out");
+        } else {
+          stockEl.textContent = `${strings.laden.vorrat} ${remaining}`;
+        }
+        row.appendChild(stockEl);
+      }
+
       const btn = document.createElement("button");
       btn.textContent = strings.laden.kaufen;
-      btn.disabled = _coins < item.preis;
+      // Disable when not enough coins OR sold out in Hard Mode.
+      btn.disabled = _coins < item.preis || soldOut;
       btn.addEventListener("click", () => {
         const ok = onBuy(item, item.preis);
         if (ok) {
@@ -80,8 +100,10 @@ export function createShopDialog(root, { onBuy }) {
   }
 
   return {
-    open(coins) {
+    open(coins, { hardMode = false, stock = {} } = {}) {
       _coins = coins;
+      _hardMode = hardMode;
+      _stock = stock;
       overlay.hidden = false;
       render();
     },

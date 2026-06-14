@@ -196,6 +196,8 @@ export const strings = {
     kaufen: "Kaufen",
     zuWenig: "Zu wenig Münzen.",
     muenzen: "Guthaben:",
+    vorrat: "Vorrat:",
+    ausverkauft: "ausverkauft",
   },
   qualitaet: {
     sorgfaeltig: "sorgfältig",

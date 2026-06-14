@@ -14,6 +14,7 @@ import { createPlayer, updatePlayer } from "./world/player.js";
 import { getActiveSpawns } from "./world/plantSpawns.js";
 import { getActiveNpcs } from "./world/npc.js";
 import { createTime, advanceTime, advanceDay, addMinutes, absoluteDay } from "./sim/time.js";
+import { shopCatalog } from "./data/shop.js";
 import { createInventory, addItem, removeItem, groupInventory, tickSpoilage, discardItems } from "./sim/inventory.js";
 import { createProgress, recordSighting, recordMerkmalReveal, recordCraft, recordDelivery } from "./sim/progress.js";
 import { createProcessingState, startDrying, startRecipe, tickAndComplete, recordCare } from "./sim/processing.js";
@@ -213,6 +214,22 @@ let introSeen = false;
 // WP4a: Hard Mode (OFF by default — normal mode is unaffected)
 let hardMode = false;
 
+// WP4b: Hard Mode shop stock. Keys are shopCatalog item ids; values are current count.
+// Only used when hardMode is true; normal mode bypasses all stock checks entirely.
+const RESTOCK_INTERVAL = 3;   // every N in-game days, stock trickles back
+const RESTOCK_AMOUNT   = 2;   // units added per restock tick (capped at item.stock max)
+
+/** Build the default shopStock map from catalog definitions. */
+function defaultShopStock() {
+  const s = {};
+  for (const item of shopCatalog) {
+    if (item.stock != null) s[item.id] = item.stock;
+  }
+  return s;
+}
+
+let shopStock = defaultShopStock();
+
 const saved = loadGame();
 if (saved) {
   if (saved.map) map = loadMap(saved.map);
@@ -239,6 +256,14 @@ if (saved) {
   quests         = saved.quests         ?? { alpweideUnlocked: false };
   introSeen      = saved.introSeen      ?? false;
   hardMode       = saved.hardMode       ?? false;
+  // WP4b: restore stock; backfill any newly-added catalog items so older saves work.
+  if (saved.shopStock) {
+    shopStock = saved.shopStock;
+    const defaults = defaultShopStock();
+    for (const [id, max] of Object.entries(defaults)) {
+      if (shopStock[id] == null) shopStock[id] = max;
+    }
+  }
 }
 
 canvas.width = VIEWPORT_TILES_X * map.tileSize * SCALE;
@@ -276,6 +301,7 @@ function persist() {
     quests,
     introSeen,
     hardMode,
+    shopStock,
   });
 }
 
@@ -292,6 +318,18 @@ function onDayComplete() {
   if (hardMode) {
     const spoiled = tickSpoilage(inventory, absoluteDay(time));
     if (spoiled > 0) hud.showMessage(strings.meldungen.verdorben);
+  }
+
+  // WP4b: Hard Mode shop restock — every RESTOCK_INTERVAL days, trickle stock back.
+  if (hardMode && absoluteDay(time) % RESTOCK_INTERVAL === 0) {
+    for (const item of shopCatalog) {
+      if (item.stock != null) {
+        shopStock[item.id] = Math.min(
+          (shopStock[item.id] ?? 0) + RESTOCK_AMOUNT,
+          item.stock,
+        );
+      }
+    }
   }
 
   tickGarden(garden, time);
@@ -383,7 +421,7 @@ function updateInteractables() {
       if (nearbyStation.type === "buchstand") {
         book.open(progress, time);
       } else if (nearbyStation.type === "dorfladen") {
-        shopDialog.open(coins);
+        shopDialog.open(coins, { hardMode, stock: shopStock });
       } else if (nearbyStation.type === "anschlagbrett") {
         boardDialog.open(requests);
       } else if (nearbyStation.type === "abgabebox") {
@@ -494,6 +532,10 @@ inventoryPanel = createInventoryPanel(uiRoot);
 const shopDialog = createShopDialog(uiRoot, {
   onBuy(item, preis) {
     if (coins < preis) return false;
+    // WP4b: Hard Mode stock check — sold-out items cannot be purchased.
+    if (hardMode && item.stock != null) {
+      if ((shopStock[item.id] ?? 0) <= 0) return false;
+    }
     coins -= preis;
     if (item.kind === "zutat") {
       addZutat(zutaten, item.ref);
@@ -501,6 +543,10 @@ const shopDialog = createShopDialog(uiRoot, {
       seeds[item.ref] = (seeds[item.ref] ?? 0) + 1;
     } else if (item.kind === "produce") {
       addItem(inventory, item.ref, item.teil ?? item.ref);
+    }
+    // WP4b: Decrement stock in Hard Mode.
+    if (hardMode && item.stock != null) {
+      shopStock[item.id] = Math.max(0, (shopStock[item.id] ?? 0) - 1);
     }
     hud.setStats({ coins });
     persist();
