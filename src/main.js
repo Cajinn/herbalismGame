@@ -11,7 +11,7 @@ import { herbTile } from "./data/herbTiles.js";
 import { loadGame, saveGame, clearGame } from "./engine/save.js";
 import { loadMap } from "./world/mapLoader.js";
 import { createPlayer, updatePlayer } from "./world/player.js";
-import { getActiveSpawns } from "./world/plantSpawns.js";
+import { getActiveSpawns, harvestYield } from "./world/plantSpawns.js";
 import { getActiveNpcs } from "./world/npc.js";
 import { createTime, advanceTime, advanceDay, addMinutes, absoluteDay } from "./sim/time.js";
 import { shopCatalog } from "./data/shop.js";
@@ -465,11 +465,15 @@ function handleHarvest(spawn, teil) {
     hud.showMessage(strings.quest.geschuetztKonfisziert);
     return;
   }
-  addItem(inventory, spawn.species, teil, spawn.labeledAs ?? null, absoluteDay(time));
+  const n = harvestYield(spawn.species, teil);
+  const createdDay = absoluteDay(time);
+  for (let i = 0; i < n; i++) {
+    addItem(inventory, spawn.species, teil, spawn.labeledAs ?? null, createdDay);
+  }
   harvested.add(spawn.id);
   persist();
   const displayName = spawn.labeledAs ? (herbs[spawn.labeledAs]?.nameDe ?? spawn.labeledAs) : spawn.herb.nameDe;
-  hud.showMessage(`${displayName} (${strings.teile[teil]}) ${strings.meldungen.gesammelt}`);
+  hud.showMessage(`${displayName} (${strings.teile[teil]}) ×${n} ${strings.meldungen.gesammelt}`);
 }
 
 function doSleep() {
