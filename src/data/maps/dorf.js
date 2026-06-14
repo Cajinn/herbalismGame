@@ -100,13 +100,13 @@ export const dorf = {
   ],
 
   buildings: [
-    { x: 20, y: 2,  w: 8, roofBody: 2, door: { dx: 2 } }, // herbalist house
-    { x: 8,  y: 3,  w: 3, roofBody: 1, door: { dx: 1 } }, // shop
-    { x: 0,  y: 15, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut W
-    { x: 9,  y: 15, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut CW
-    { x: 15, y: 16, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut CE
-    { x: 0,  y: 18, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut SW (new)
-    { x: 10, y: 18, w: 3, roofBody: 0, door: { dx: 1 } }, // villager hut S (new)
+    { x: 20, y: 2,  w: 8, roofBody: 2, door: { dx: 2 }, noRender: true }, // herbalist house
+    { x: 8,  y: 3,  w: 3, roofBody: 1, door: { dx: 1 }, noRender: true }, // shop
+    { x: 0,  y: 15, w: 3, roofBody: 0, door: { dx: 1 }, noRender: true }, // villager hut W
+    { x: 9,  y: 15, w: 3, roofBody: 0, door: { dx: 1 }, noRender: true }, // villager hut CW
+    { x: 15, y: 16, w: 3, roofBody: 0, door: { dx: 1 }, noRender: true }, // villager hut CE
+    { x: 0,  y: 18, w: 3, roofBody: 0, door: { dx: 1 }, noRender: true }, // villager hut SW
+    { x: 10, y: 18, w: 3, roofBody: 0, door: { dx: 1 }, noRender: true }, // villager hut S
   ],
 
   // PixelLab PNG objects rendered after terrain + buildings, before characters.
@@ -129,5 +129,14 @@ export const dorf = {
     // Station objects (render over the solid placeholder tiles A and C)
     { name: "notice_board", x: 14, y: 8, tilew: 1, tileh: 1 },
     { name: "deposit_box",  x: 17, y: 8, tilew: 1, tileh: 1 },
+    // PixelLab buildings — replace SL tile renderer (noRender on buildings entries)
+    // Footprint h = roofBody + 4. Huts alternate a/b for variety.
+    { name: "herbalist_house", x: 20, y: 2,  tilew: 8, tileh: 6 },
+    { name: "shop",            x: 8,  y: 3,  tilew: 3, tileh: 5 },
+    { name: "hut_a",           x: 0,  y: 15, tilew: 3, tileh: 4 },
+    { name: "hut_b",           x: 9,  y: 15, tilew: 3, tileh: 4 },
+    { name: "hut_a",           x: 15, y: 16, tilew: 3, tileh: 4 },
+    { name: "hut_b",           x: 0,  y: 18, tilew: 3, tileh: 4 },
+    { name: "hut_a",           x: 10, y: 18, tilew: 3, tileh: 4 },
   ],
 };

@@ -52,6 +52,7 @@ export function renderBuildings(ctx, map, camera, scale) {
   const py = (ty) => Math.round(ty * ts * scale - camera.y * scale);
 
   for (const b of map.buildings ?? []) {
+    if (b.noRender) continue;
     const rB = b.roofBody ?? 1;
     const wallTop = b.y + rB + 1;
     const dx = b.door?.dx ?? Math.floor(b.w / 2);

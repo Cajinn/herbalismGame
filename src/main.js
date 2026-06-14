@@ -68,7 +68,7 @@ loadTileset("plants",    "assets/tiles/sprout/plants.png",        6);
 // pl_gp: grass↔path transitions. Lower=dirt path, upper=lush grass.
 // pl_gw: grass↔water transitions. Lower=brook water, upper=lush grass.
 // pl_gt: grass↔tilled transitions. Lower=tilled earth, upper=lush grass.
-loadTileset("pl_gp",     "assets/tiles/pixellab/grass_path.png",   4);
+loadTileset("pl_gp",     "assets/tiles/pixellab/terrain_gp.png",   4);
 loadTileset("pl_gw",     "assets/tiles/pixellab/grass_water.png",  4);
 loadTileset("pl_gt",     "assets/tiles/pixellab/grass_tilled.png", 4);
 
@@ -78,7 +78,11 @@ loadObject("hedge",         "assets/objects/hedge.png");
 loadObject("well",          "assets/objects/well.png");
 loadObject("notice_board",  "assets/objects/notice_board.png");
 loadObject("deposit_box",   "assets/objects/deposit_box.png");
-loadObject("drying_rack",   "assets/objects/drying_rack.png");
+loadObject("drying_rack",      "assets/objects/drying_rack.png");
+loadObject("hut_a",            "assets/objects/hut_a.png");
+loadObject("hut_b",            "assets/objects/hut_b.png");
+loadObject("herbalist_house",  "assets/objects/herbalist_house.png");
+loadObject("shop",             "assets/objects/shop.png");
 
 // PixelLab per-character sprites (4 cardinal directions each).
 // Keys match villager id fields in villagers.js; "herbalist" reserved for player.
