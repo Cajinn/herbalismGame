@@ -26,6 +26,9 @@ export const birke = {
   verwechslung: [],
   geschuetzt: false,
   kultivierbar: false,
+  // A 15–25 m tree: draw the spawn sprite across a 2×2-tile footprint
+  // (anchored bottom-centre on the spawn tile) instead of a single herb tile.
+  renderTiles: 2,
   verwendung: {
     blaetter: ["tee", "trocknen"],
     wirkungTraditionell:

@@ -17,10 +17,10 @@ export const bachufer = {
     ".": { tile: "ufer",    solid: false, color: "#7cb342", wang: "pl_gw" },
     ",": { tile: "ufer2",   solid: false, color: "#82c044", wang: "pl_gw" },
     "#": { tile: "pfad",    solid: false, color: "#c8aa7a", wang: "pl_gp", terrain: "path" },
-    "O": { tile: "wasser",  solid: true,  color: "#4fc3f7", t: ["water",  0], terrain: "water" },
+    "O": { tile: "wasser",  solid: true,  color: "#3a6ea5", wang: "pl_gw", terrain: "water" },
     "B": { tile: "strauch", solid: true,  color: "#5a8a28", wang: "pl_gp" },
     "T": { tile: "baum",    solid: true,  color: "#558b2f", wang: "pl_gp" },
-    "=": { solid: false, color: "#c8a06a", t: ["bridge", 8] },
+    "=": { solid: false, color: "#3a6ea5", wang: "pl_gw", terrain: "water" },
   },
   grid: [
     "TTTTTTTTTTTTTTTTOOOTTTTTTTTTTTT",
@@ -33,7 +33,7 @@ export const bachufer = {
     "T................OO...........T",
     "T................OO...........T",
     "T................OO...........T",
-    "#################==############",  // bridge at cols 17-18 over stream
+    "################==#############",  // bridge over the stream at cols 16-17
     "T................OO...........T",
     "T....B...........OO...........T",
     "T................OO...........T",
@@ -59,7 +59,7 @@ export const bachufer = {
     { name: "wildflowers",  x: 22, y: 2,  tilew: 1, tileh: 1 },
     { name: "wildflowers",  x: 25, y: 14, tilew: 1, tileh: 1 },
     // Bridge over stream at road crossing (cols 17-18)
-    { name: "bridge", x: 17, y: 10, tilew: 2, tileh: 1 },
+    { name: "bridge", x: 16, y: 10, tilew: 2, tileh: 1 },
     // Shrubs replacing former B biom tiles
     { name: "shrub", x: 26, y: 2,  tilew: 1, tileh: 1 },
     { name: "shrub", x: 5,  y: 3,  tilew: 1, tileh: 1 },

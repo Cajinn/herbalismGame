@@ -15,6 +15,9 @@ import { getObject } from "./objects.js";
 import { computeBitmask, dirtBlobIndex, pathFringeIndex, grassWangIndex } from "./autotile.js";
 import { buildingSolidAt } from "./buildings.js";
 
+// Which "lower" terrain class each PixelLab Wang atlas transitions against.
+const WANG_LOWER = { pl_gp: "path", pl_gw: "water", pl_gf: "forest", pl_gr: "rock" };
+
 export function getTileDef(map, tx, ty) {
   const row = map.grid[ty];
   if (row === undefined) return null;
@@ -67,7 +70,6 @@ export function renderMap(ctx, map, camera, scale) {
         }
       } else if (def.wang) {
         // Each Wang atlas transitions against a specific "lower" terrain class.
-        const WANG_LOWER = { pl_gp: "path", pl_gw: "water", pl_gf: "forest", pl_gr: "rock" };
         const lowerClass = WANG_LOWER[def.wang] ?? "path";
         if (def.terrain === "bed") {
           // Bed tiles: keep SL blob approach; Wang atlas not used for beds.
@@ -95,6 +97,24 @@ export function renderMap(ctx, map, camera, scale) {
         }
       } else if (def.t) {
         drawTile(ctx, def.t[0], def.t[1], screenX, screenY, scaledTile);
+      }
+
+      // Modern-trail edge: grass tiles that already transition to another
+      // terrain (water/forest/rock via pl_gw/pl_gf/pl_gr) never blend into a
+      // path, since their own Wang atlas isn't pl_gp. Where such a tile borders
+      // a path (e.g. the streamside path through Bachufer), overlay the pl_gp
+      // grass→path transition on top so the trail gets the same soft edges as
+      // the village paths instead of a hard-cut band.
+      // Only the "upper" (grass) tiles qualify: skip the atlas's own lower
+      // terrain (e.g. the water tiles themselves, terrain==="water"), or the
+      // overlay would paint grass/dirt onto the river next to the bridge.
+      const wangLower = def.wang ? (WANG_LOWER[def.wang] ?? "path") : null;
+      if (wangLower && wangLower !== "path" &&
+          def.terrain !== wangLower && def.terrain !== "path") {
+        const pathMask = computeBitmask(map, tx, ty, "path");
+        if (pathMask !== 0) {
+          drawTile(ctx, "pl_gp", grassWangIndex(pathMask), screenX, screenY, scaledTile);
+        }
       }
     }
   }

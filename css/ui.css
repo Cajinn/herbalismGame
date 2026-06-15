@@ -847,3 +847,104 @@ body {
   background: var(--wood-mid);
   color: var(--text-cream);
 }
+
+/* ── Main menu (New Game / Continue / Saved Games / Settings) ─────────────── */
+.menu__box {
+  min-width: 360px;
+  gap: 14px;
+}
+
+.menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.menu__btn {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  padding: 11px 18px;
+  border: 2px solid var(--wood-deep);
+  border-radius: 8px;
+  background: var(--wood-mid);
+  color: var(--text-cream);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(80, 40, 10, 0.3),
+              inset 0 1px 0 rgba(196, 160, 106, 0.45);
+  transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+.menu__btn:hover:not(:disabled) {
+  background: var(--wood-light);
+  box-shadow: 0 3px 10px rgba(80, 40, 10, 0.4),
+              inset 0 1px 0 rgba(196, 160, 106, 0.55);
+}
+.menu__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.menu__btn--small {
+  font-size: 13px;
+  padding: 7px 13px;
+}
+.menu__btn--ghost {
+  background: transparent;
+  color: var(--wood-deep);
+  box-shadow: none;
+  margin-top: 4px;
+}
+.menu__btn--ghost:hover:not(:disabled) {
+  background: var(--wood-mid);
+  color: var(--text-cream);
+}
+.menu__btn--danger {
+  background: #8a3a28;
+  border-color: #5e2417;
+}
+.menu__btn--danger:hover:not(:disabled) {
+  background: #a64a35;
+}
+
+.menu__slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 2px solid var(--wood-deep);
+  border-radius: 8px;
+  background: rgba(196, 160, 106, 0.18);
+  text-align: left;
+}
+.menu__slot-name {
+  font-weight: bold;
+  color: var(--wood-deep);
+  font-size: 14px;
+}
+.menu__slot-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.menu__slot-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.menu__setting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--wood-deep);
+  padding: 6px 2px;
+  cursor: pointer;
+}
+.menu__note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}

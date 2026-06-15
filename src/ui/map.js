@@ -42,7 +42,7 @@ const KEY_SPOTS = {
 
 // ── SVG builder ─────────────────────────────────────────────────────────────
 
-function buildSvg(currentMapId) {
+function buildSvg(currentMapId, onNodeClick) {
   const SVG_W = 580;
   const SVG_H = 510;
 
@@ -274,6 +274,17 @@ function buildSvg(currentMapId) {
       nodeGroup.appendChild(marker);
     }
 
+    // Click a place to fast-travel there (the current location is inert).
+    if (onNodeClick && !isCurrent) {
+      nodeGroup.style.cursor = "pointer";
+      nodeGroup.addEventListener("click", () => onNodeClick(area.id));
+      nodeGroup.addEventListener("mouseenter", () => { nodeBg.setAttribute("stroke-width", "3"); });
+      nodeGroup.addEventListener("mouseleave", () => { nodeBg.setAttribute("stroke-width", isCurrent ? "2.5" : "1.5"); });
+      const travelTitle = document.createElementNS(svgNS, "title");
+      travelTitle.textContent = `${strings.karte?.reisenNach ?? "Reisen nach"} ${area.label}`;
+      nodeGroup.appendChild(travelTitle);
+    }
+
     // Quest-gated label
     if (isQuestGated) {
       const questLabel = document.createElementNS(svgNS, "text");
@@ -469,7 +480,7 @@ function drawCompass(svg, ns, cx, cy) {
 }
 
 // ── Panel factory ────────────────────────────────────────────────────────────
-export function createMapPanel(root) {
+export function createMapPanel(root, { onTravel, homeId = "kraeuterhaeuschen" } = {}) {
   const overlay = document.createElement("div");
   overlay.className = "book"; // reuse book overlay class for backdrop
   overlay.hidden = true;
@@ -499,13 +510,30 @@ export function createMapPanel(root) {
   titleEl.style.margin = "0";
   titleEl.textContent = strings.karte?.titel ?? "Karte";
 
+  // Fast-travel home + close buttons, grouped on the right of the header.
+  const btnRow = document.createElement("div");
+  btnRow.style.cssText = "display:flex;gap:8px;align-items:center;";
+
+  const homeBtn = document.createElement("button");
+  homeBtn.className = "book__close";
+  homeBtn.textContent = strings.karte?.nachHause ?? "Nach Hause";
+  homeBtn.addEventListener("click", () => travel(homeId));
+
   const closeBtn = document.createElement("button");
   closeBtn.className = "book__close";
   closeBtn.textContent = strings.karte?.schliessen ?? "Schliessen";
   closeBtn.addEventListener("click", close);
 
-  header.append(titleEl, closeBtn);
+  btnRow.append(homeBtn, closeBtn);
+  header.append(titleEl, btnRow);
   panel.appendChild(header);
+
+  // Fast-travel to a place; close the map only if the trip actually happened
+  // (onTravel returns false when the destination is locked or already current).
+  function travel(mapId) {
+    if (!onTravel) return;
+    if (onTravel(mapId) !== false) close();
+  }
 
   // SVG container
   const svgWrap = document.createElement("div");
@@ -517,8 +545,10 @@ export function createMapPanel(root) {
   function open(currentMapId = "dorf") {
     // Rebuild SVG each open so it always reflects the current map
     svgWrap.innerHTML = "";
-    svgEl = buildSvg(currentMapId);
+    svgEl = buildSvg(currentMapId, onTravel ? travel : null);
     svgWrap.appendChild(svgEl);
+    // No point offering "Nach Hause" when you are already home.
+    homeBtn.hidden = !onTravel || currentMapId === homeId;
     overlay.hidden = false;
   }
 

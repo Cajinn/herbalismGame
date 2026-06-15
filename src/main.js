@@ -8,12 +8,12 @@ import { renderMap, mapPixelSize } from "./engine/tilemap.js";
 import { renderBuildings } from "./engine/buildings.js";
 import { drawPlayer, drawCharacter, loadPlCharacter } from "./engine/sprites.js";
 import { herbTile } from "./data/herbTiles.js";
-import { loadGame, saveGame, clearGame } from "./engine/save.js";
+import { loadGame, saveGame, clearGame, listSaves, migrateLegacySave } from "./engine/save.js";
 import { loadMap } from "./world/mapLoader.js";
 import { createPlayer, updatePlayer } from "./world/player.js";
 import { getActiveSpawns, harvestYield } from "./world/plantSpawns.js";
 import { getActiveNpcs } from "./world/npc.js";
-import { createTime, advanceTime, advanceDay, addMinutes, absoluteDay } from "./sim/time.js";
+import { createTime, advanceTime, advanceDay, addMinutes, absoluteDay, getSeasonKey } from "./sim/time.js";
 import { shopCatalog } from "./data/shop.js";
 import { createInventory, addItem, removeItem, groupInventory, tickSpoilage, discardItems } from "./sim/inventory.js";
 import { createProgress, recordSighting, recordMerkmalReveal, recordCraft, recordDelivery } from "./sim/progress.js";
@@ -33,7 +33,7 @@ import { createVillagerDialog } from "./ui/dialog.js";
 import { createBoardDialog } from "./ui/board.js";
 import { createMapPanel } from "./ui/map.js";
 import { createDepositPanel } from "./ui/deposit.js";
-import { createTitleScreen } from "./ui/title.js";
+import { createMainMenu } from "./ui/menu.js";
 import { createVillagerStatus, tickVillagerStatus, makeVillagerSick } from "./sim/villagerStatus.js";
 import { methods } from "./data/methods.js";
 import { strings } from "./data/strings.de.js";
@@ -230,8 +230,16 @@ function defaultShopStock() {
 
 let shopStock = defaultShopStock();
 
-const saved = loadGame();
-if (saved) {
+// Which of the three slots the running game reads from and writes to.
+let currentSlot = 1;
+
+// Move any pre-slot single save into slot 1 so existing players keep progress.
+migrateLegacySave();
+
+// Restore a saved game's state into the live `let` bindings. Called when the
+// player picks a slot from the main menu (not at module load — the menu decides
+// whether to start fresh or continue).
+function applySave(saved) {
   if (saved.map) map = loadMap(saved.map);
   player.x = saved.player.x;
   player.y = saved.player.y;
@@ -264,6 +272,8 @@ if (saved) {
       if (shopStock[id] == null) shopStock[id] = max;
     }
   }
+  // Re-fit camera/zoom to the restored map (canvas tile-size is constant).
+  refreshView();
 }
 
 canvas.width = VIEWPORT_TILES_X * map.tileSize * SCALE;
@@ -302,7 +312,7 @@ function persist() {
     introSeen,
     hardMode,
     shopStock,
-  });
+  }, currentSlot);
 }
 
 // Called whenever a day boundary is crossed (manual sleep or midnight collapse).
@@ -347,15 +357,35 @@ function onDayComplete() {
   if (newOpen > prevOpen) hud.showMessage(strings.meldungen.neueAnfragen);
 }
 
+// Re-fit camera + zoom to the current `map` (interiors zoom in, outdoors reset
+// to SCALE). Canvas tile-size is constant, so only the camera viewport changes.
+function refreshView() {
+  ({ width: mapWidth, height: mapHeight } = mapPixelSize(map));
+  viewScale = SCALE * (map.zoom ?? 1);
+  camera.width = canvas.width / viewScale;
+  camera.height = canvas.height / viewScale;
+  updateCamera(camera, player, mapWidth, mapHeight);
+}
+
 function doTransition(exit) {
   map = loadMap(exit.target);
   player.x = exit.spawn.x * map.tileSize;
   player.y = exit.spawn.y * map.tileSize;
-  ({ width: mapWidth, height: mapHeight } = mapPixelSize(map));
-  // Re-zoom for the new map (interiors zoom in, outdoors reset to SCALE).
-  viewScale = SCALE * (map.zoom ?? 1);
-  camera.width = canvas.width / viewScale;
-  camera.height = canvas.height / viewScale;
+  refreshView();
+}
+
+// Fast-travel from the overview map. Returns false when the trip is refused
+// (already there, or a locked destination) so the map panel can stay open.
+function travelTo(mapId) {
+  if (mapId === map.id) return false;
+  if (mapId === "alpweide" && !quests.alpweideUnlocked) {
+    hud.showMessage(strings.quest.alpweideGesperrt);
+    return false;
+  }
+  const target = loadMap(mapId);
+  doTransition({ target: mapId, spawn: target.playerSpawn ?? { x: 1, y: 1 } });
+  persist();
+  return true;
 }
 
 function checkExit() {
@@ -502,13 +532,11 @@ const hud = createHud(uiRoot, {
   onOpenMap: () => mapPanel.toggle(map.id),
   onNewGame: () => {
     if (!window.confirm(strings.hud.neuesSpielFrage)) return;
-    clearGame();
-    window.location.reload();
+    menu.show(); // back to the main menu to pick a slot / start fresh
   },
 });
 hud.update(time);
 hud.setStats({ coins });
-if (saved) hud.showMessage(strings.meldungen.geladen);
 
 // Hard Mode badge — small indicator shown while hardMode is on.
 const hardModeBadge = document.createElement("div");
@@ -624,7 +652,7 @@ const villagerDialog = createVillagerDialog(uiRoot, {
 
 const boardDialog = createBoardDialog(uiRoot);
 
-const mapPanel = createMapPanel(uiRoot);
+const mapPanel = createMapPanel(uiRoot, { onTravel: travelTo, homeId: "kraeuterhaeuschen" });
 
 const depositPanel = createDepositPanel(uiRoot, {
   onDeposit(requestId, item) {
@@ -652,17 +680,85 @@ const depositPanel = createDepositPanel(uiRoot, {
   },
 });
 
-const titleScreen = createTitleScreen(uiRoot);
-const startedNewGame = !introSeen;   // Hard Mode is chosen only for a fresh game
-titleScreen.show((chosen) => {
-  if (startedNewGame) hardMode = chosen;   // saved games keep their stored mode
-  hardModeBadge.hidden = !hardMode;
+// Hard Mode preference applied to newly started games (toggled in Settings).
+let menuHardMode = false;
+
+// Wipe the live game state back to a fresh start (used by New Game, which may
+// be triggered mid-session via the HUD → menu, so it can't rely on boot defaults).
+function resetState() {
+  map = loadMap("kraeuterhaeuschen");
+  const spawn = createPlayer(map);
+  player.x = spawn.x;
+  player.y = spawn.y;
+  player.direction = spawn.direction;
+  player.moving = false;
+  time = createTime();
+  inventory = createInventory();
+  progress = createProgress();
+  processingState = createProcessingState();
+  harvested = new Set();
+  coins = 50;
+  zutaten = createZutaten();
+  seeds = {};
+  reputation = createReputation();
+  requests = createRequests();
+  garden = createGarden();
+  villagerStatus = createVillagerStatus();
+  quests = { alpweideUnlocked: false };
   introSeen = true;
+  shopStock = defaultShopStock();
+  refreshView();
+}
+
+// Common tail for entering play from the menu.
+function enterGame() {
+  hardModeBadge.hidden = !hardMode;
+  hud.update(time);
+  hud.setStats({ coins });
+  menu.hide();
+}
+
+function newGame(slot) {
+  currentSlot = slot;
+  resetState();
+  hardMode = menuHardMode;
   persist();
-}, { newGame: startedNewGame, hardMode });
+  enterGame();
+}
+
+function continueGame(slot) {
+  const data = loadGame(slot);
+  if (!data) return;
+  currentSlot = slot;
+  applySave(data);
+  enterGame();
+  hud.showMessage(strings.meldungen.geladen);
+}
+
+const menu = createMainMenu(uiRoot, {
+  getSaves: () => listSaves().map(({ slot, data }) => ({
+    slot,
+    exists: !!data,
+    savedAt: data?.savedAt ?? 0,
+    hardMode: !!data?.hardMode,
+    summary: data
+      ? strings.menu.zusammenfassung(
+          strings.seasons[getSeasonKey(data.time)] ?? "",
+          data.time?.day ?? 1,
+          data.coins ?? 0,
+        )
+      : "",
+  })),
+  onNewGame: newGame,
+  onContinue: continueGame,
+  onDeleteSave: (slot) => clearGame(slot),
+  getHardMode: () => menuHardMode,
+  setHardMode: (v) => { menuHardMode = v; },
+});
+menu.show();
 
 function update(dt) {
-  if (titleScreen.isVisible()) return;
+  if (menu.isVisible()) return;
 
   const modalOpen =
     identifyDialog.isOpen() || workshopDialog.isOpen() || book.isOpen() ||
@@ -800,17 +896,22 @@ function render() {
 
   ctx.imageSmoothingEnabled = false;
   for (const spawn of activeSpawns) {
-    const screenX = (spawn.x * map.tileSize - camera.x) * SCALE;
-    const screenY = (spawn.y * map.tileSize - camera.y) * SCALE;
     const sz = map.tileSize * SCALE;
+    // Trees (Birke, Weide …) declare renderTiles so they draw bigger than a
+    // single herb tile. The larger sprite is anchored bottom-centre on the
+    // spawn tile so its roots stay put while the canopy grows up and out.
+    const tiles = herbs[spawn.species]?.renderTiles ?? 1;
+    const drawSz = sz * tiles;
+    const screenX = (spawn.x * map.tileSize - camera.x) * SCALE - (drawSz - sz) / 2;
+    const screenY = (spawn.y * map.tileSize - camera.y) * SCALE - (drawSz - sz);
     const herbImg = _herbSprites.get(spawn.species);
     if (herbImg?.complete && herbImg.naturalWidth > 0) {
       // Crop bottom 15% to remove species-name label baked into PixelLab PNGs.
       const cropH = Math.round(herbImg.naturalHeight * 0.85);
-      ctx.drawImage(herbImg, 0, 0, herbImg.naturalWidth, cropH, screenX, screenY, sz, sz);
+      ctx.drawImage(herbImg, 0, 0, herbImg.naturalWidth, cropH, screenX, screenY, drawSz, drawSz);
     } else {
       const [htAtlas, htIdx] = herbTile(spawn.species);
-      drawTile(ctx, htAtlas, htIdx, screenX, screenY, sz);
+      drawTile(ctx, htAtlas, htIdx, screenX, screenY, drawSz);
     }
   }
   ctx.imageSmoothingEnabled = true;

@@ -27,6 +27,9 @@ export const weide = {
   verwechslung: [],
   geschuetzt: false,
   kultivierbar: false,
+  // A 5–20 m waterside tree: draw the spawn sprite across a 2×2-tile footprint
+  // (anchored bottom-centre on the spawn tile) instead of a single herb tile.
+  renderTiles: 2,
   verwendung: {
     rinde: ["tee", "trocknen"],
     wirkungTraditionell:
