@@ -8,10 +8,14 @@ Ein gemütliches Pixel-Art-Browserspiel über Schweizer Kräuterheilkunde. Siehe
 ES-Module benötigen einen lokalen Server (kein `file://`):
 
 ```sh
-python3 -m http.server
+/usr/local/bin/python3 tools/devserver.py 4173
 ```
 
-Dann im Browser öffnen: http://localhost:8000
+Dann im Browser öffnen: http://localhost:4173/
+
+`tools/devserver.py` sendet `Cache-Control: no-store`, damit bearbeitete
+ES-Module beim Neuladen immer frisch geladen werden (das einfache
+`python3 -m http.server` cached Submodule und serviert sonst alten Code).
 
 ## Stand: M5 — Inhalt & Politur
 
