@@ -1,15 +1,9 @@
 // Waldrand — forest edge north of the village. A path runs from the village
 // (south exit) up through the tree line toward the deep forest (north exit).
-// The village stream crosses at the south end over a wooden bridge.
-// Sprout Lands tiles:
-//   grass[55] = open meadow ground
-//   grass[56] = alt meadow
-//   dirt[55]  = sandy path fill
-//   water[0]  = stream water
-//   bridge[8] = horizontal bridge plank middle (where path crosses stream)
-//   biom[27]  = pink bush (meadow edge)
-//   biom[28]  = rose bush (forest understorey)
-//   biom[39]  = large green round bush (= "tree" stand-in, most opaque)
+// A path runs from the village (south) up through the tree line to the forest.
+// Owned art only: the tree line / bushes are solid pl_gp Wang grass (forest
+// green), with shrub object PNGs placed over the understorey clusters
+// (same convention as wiese/bachufer).
 export const waldrand = {
   id: "waldrand",
   name: "Waldrand",
@@ -19,11 +13,9 @@ export const waldrand = {
     ".": { tile: "wiese",     solid: false, color: "#8bc34a", wang: "pl_gp" },
     ",": { tile: "wiese2",    solid: false, color: "#7cb342", wang: "pl_gp" },
     "#": { tile: "pfad",      solid: false, color: "#c8aa7a", wang: "pl_gp", terrain: "path" },
-    "~": { tile: "wasser",    solid: true,  color: "#4fc3f7", t: ["water",  0] },
-    "=": { tile: "bruecke",   solid: false, color: "#c8a06a", t: ["bridge", 8] },
-    "T": { tile: "baum",      solid: true,  color: "#558b2f", t: ["biom",  39] },
-    "B": { tile: "strauch",   solid: true,  color: "#8bc34a", t: ["biom",  27] },
-    "b": { tile: "strauch2",  solid: true,  color: "#8bc34a", t: ["biom",  28] },
+    "T": { tile: "baum",      solid: true,  color: "#558b2f", wang: "pl_gp" },
+    "B": { tile: "strauch",   solid: true,  color: "#5a8a28", wang: "pl_gp" },
+    "b": { tile: "strauch2",  solid: true,  color: "#5a8a28", wang: "pl_gp" },
   },
   grid: [
     "TTTTTTTTTTTTTTT#TTTTTTTTTTTTTTTT",
@@ -51,5 +43,20 @@ export const waldrand = {
   exits: [
     { x: 15, y: 19, target: "dorf",  spawn: { x: 6,  y: 1  } },
     { x: 15, y: 0,  target: "wald",  spawn: { x: 15, y: 18 } },
+  ],
+  // Shrub object PNGs over the former biom bush clusters (bbb 3×3) and singles.
+  objects: [
+    { name: "shrub", x: 5,  y: 2,  tilew: 3, tileh: 3 },
+    { name: "shrub", x: 21, y: 2,  tilew: 3, tileh: 3 },
+    { name: "shrub", x: 5,  y: 14, tilew: 3, tileh: 3 },
+    { name: "shrub", x: 21, y: 14, tilew: 3, tileh: 3 },
+    { name: "shrub", x: 6,  y: 6,  tilew: 1, tileh: 1 },
+    { name: "shrub", x: 24, y: 6,  tilew: 1, tileh: 1 },
+    { name: "shrub", x: 4,  y: 10, tilew: 1, tileh: 1 },
+    { name: "shrub", x: 25, y: 10, tilew: 1, tileh: 1 },
+    { name: "shrub", x: 4,  y: 17, tilew: 1, tileh: 1 },
+    { name: "shrub", x: 25, y: 17, tilew: 1, tileh: 1 },
+    { name: "fern",  x: 12, y: 8,  tilew: 1, tileh: 1 },
+    { name: "fern",  x: 18, y: 12, tilew: 1, tileh: 1 },
   ],
 };

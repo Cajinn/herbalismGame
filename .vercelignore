@@ -1,0 +1,12 @@
+# Private notes & references — do not deploy
+pat's stuff/
+.claude/
+.DS_Store
+
+# Planning docs (not needed at runtime)
+*_PLAN.md
+PLAN.md
+EXPANDING.md
+
+# Dev-only tooling
+tools/

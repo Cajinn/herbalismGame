@@ -29,20 +29,14 @@ export const dorf = {
     ",": { solid: false, color: "#82c044", wang: "pl_gp" },
     // Path — pl_gp index 6 (wang_0 = pure dirt/lower terrain)
     "#": { solid: false, color: "#c8aa7a", wang: "pl_gp", terrain: "path" },
-    // Water & bridge (Sprout Lands, keep as-is)
-    "~": { solid: true,  color: "#4fc3f7", t: ["water",  0] },
-    "=": { solid: false, color: "#c8a06a", t: ["bridge", 8] },
+    // North path tile (was a Sprout bridge over an off-map stream) — now plain path.
+    "=": { solid: false, color: "#c8aa7a", wang: "pl_gp", terrain: "path" },
     // Trees (solid for collision; PixelLab tree_oak PNG drawn from objects array)
-    // biom fallback renders when no tree_oak PNG covers this tile.
     "T": { solid: true,  color: "#5a8a28", wang: "pl_gp" },
     // B = decorative bush; wang renders as grass so no biom background square shows
     "B": { solid: false, color: "#5a8a28", wang: "pl_gp" },
     // Garden beds — wang grass so background blends; garden_plot PNGs render on top
     "E": { solid: false, color: "#6b4423", wang: "pl_gp" },
-    // Fences
-    "f": { solid: true,  color: "#a07848", t: ["fences",  2] },
-    "|": { solid: true,  color: "#a07848", t: ["fences",  0] },
-    "c": { solid: true,  color: "#a07848", t: ["fences", 12] },
     // Station markers (solid for collision + proximity detection)
     // PixelLab notice-board and deposit-box PNGs render from objects array
     "A": { solid: true,  color: "#8d6e63", wang: "pl_gp" },  // Anschlagbrett

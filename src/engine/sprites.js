@@ -53,9 +53,11 @@ const FRAMES_PER_STEP = 8;
 let _tick = 0;
 let _walkFrame = 0;
 
-// Lazy-loaded character image.
+// Legacy Sprout Lands character sheet has been retired — all characters now
+// render from PixelLab per-character PNGs (see loadPlCharacter / drawCharacter).
+// This image is intentionally left unloaded so the old tint/sheet code paths
+// below are inert (naturalWidth stays 0) and never fetch anything.
 const _img = new Image();
-_img.src = "assets/tiles/sprout/character.png";
 
 // Fallback colors (original placeholder).
 const BODY_COLOR = "#5d4037";

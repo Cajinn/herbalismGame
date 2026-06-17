@@ -3,6 +3,8 @@ import { loadTileset, drawTile } from "./engine/tileset.js";
 import { loadObject, renderObjects, getObject } from "./engine/objects.js";
 import { startLoop } from "./engine/loop.js";
 import { initInput, consumeJustPressed } from "./engine/input.js";
+import { initTouch } from "./engine/touch.js";
+import { initFit } from "./engine/fit.js";
 import { createCamera, updateCamera } from "./engine/camera.js";
 import { renderMap, mapPixelSize } from "./engine/tilemap.js";
 import { renderBuildings } from "./engine/buildings.js";
@@ -49,23 +51,8 @@ const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
-// Preload Sprout Lands tile atlases — async, render loop falls back to flat
-// color until ready. Each sheet has a different column count (imageWidth/16).
-loadTileset("grass",     "assets/tiles/sprout/grass.png",        11);
-loadTileset("dirt",      "assets/tiles/sprout/tilled_dirt.png",  11);
-loadTileset("water",     "assets/tiles/sprout/water.png",         4);
-loadTileset("paths",     "assets/tiles/sprout/paths.png",         4);
-loadTileset("bridge",    "assets/tiles/sprout/bridge.png",        5);
-loadTileset("fences",    "assets/tiles/sprout/fences.png",        4);
-loadTileset("house",     "assets/tiles/sprout/wooden_house.png",  7);
-loadTileset("roof",      "assets/tiles/sprout/house_roof.png",     7);
-loadTileset("wall",      "assets/tiles/sprout/house_walls.png",    5);
-loadTileset("door",      "assets/tiles/sprout/doors.png",          1);
-loadTileset("furniture", "assets/tiles/sprout/furniture.png",     9);
-loadTileset("chest",     "assets/tiles/sprout/chest.png",        15);
-loadTileset("biom",      "assets/tiles/sprout/grass_biom.png",    9);
-loadTileset("plants",    "assets/tiles/sprout/plants.png",        6);
-
+// Terrain is rendered entirely from owned PixelLab Wang tilesets (below) plus
+// object PNGs; the former Sprout Lands atlases have been fully retired.
 // PixelLab Wang tilesets (4 cols × 4 rows = 16 tiles each).
 // pl_gp: grass↔path transitions. Lower=dirt path, upper=lush grass.
 // pl_gw: grass↔water transitions. Lower=alpine stream, upper=lush grass.
@@ -99,6 +86,7 @@ loadObject("shrub",       "assets/objects/env/shrub/shrub_0.png");
 loadObject("bridge",      "assets/objects/bridge.png");
 loadObject("garden_plot_3x3", "assets/objects/garden_plot_3x3.png");
 loadObject("garden_plot_2x3", "assets/objects/garden_plot_2x3.png");
+loadObject("tilled_soil",     "assets/tiles/owned/tilled_soil.png"); // garden beds
 loadObject("forest_pine", "assets/objects/env/forest_pine.png");
 loadObject("forest_oak",  "assets/objects/env/forest_oak.png");
 loadObject("mushrooms",   "assets/objects/interior/mushrooms/mushrooms_0.png");
@@ -280,6 +268,8 @@ canvas.width = VIEWPORT_TILES_X * map.tileSize * SCALE;
 canvas.height = VIEWPORT_TILES_Y * map.tileSize * SCALE;
 
 initInput();
+initTouch();
+initFit();
 
 // Effective render scale. Outdoor maps render at SCALE (whole map fits / scrolls
 // as before). Interiors set `zoom` (>1) to render bigger and more intimate; the

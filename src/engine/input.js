@@ -32,6 +32,22 @@ export function isPressed(action) {
   return pressed.has(action);
 }
 
+// Programmatic input, used by on-screen touch controls. pressAction/releaseAction
+// mirror keydown/keyup for held actions (movement); tapAction fires a one-shot
+// (interact/map) without leaving the action stuck "down".
+export function pressAction(action) {
+  if (!pressed.has(action)) justPressed.add(action);
+  pressed.add(action);
+}
+
+export function releaseAction(action) {
+  pressed.delete(action);
+}
+
+export function tapAction(action) {
+  justPressed.add(action);
+}
+
 // Returns true once per key press (not while held), for one-shot actions
 // like opening a dialog.
 export function consumeJustPressed(action) {
