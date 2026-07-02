@@ -27,16 +27,22 @@ export function startDrying(processingState, inventory, species, teil, time) {
   return true;
 }
 
+// `recipe.requiresZutat` may be a single key or an array of keys
+// (e.g. Goldene Milch braucht Honig UND Pfeffer).
+export function requiredZutaten(recipe) {
+  return [].concat(recipe.requiresZutat ?? []);
+}
+
 // Starts a recipe-based preparation. Consumes required inputs from inventory
-// and the required zutat (if any) from the zutaten store.
+// and the required zutaten (if any) from the zutaten store.
 // `recipe` is an entry from src/data/recipes.js.
-// Returns false if inputs or zutat are not available.
+// Returns false if inputs or zutaten are not available.
 export function startRecipe(processingState, inventory, recipe, time, zutaten) {
   const { method, species, teil, inputs = [] } = recipe;
 
-  // Check zutat availability before touching inventory
-  if (recipe.requiresZutat && countZutat(zutaten ?? {}, recipe.requiresZutat) < 1) {
-    return false;
+  // Check zutaten availability before touching inventory
+  for (const key of requiredZutaten(recipe)) {
+    if (countZutat(zutaten ?? {}, key) < 1) return false;
   }
 
   // Consume each required input from inventory
@@ -46,9 +52,11 @@ export function startRecipe(processingState, inventory, recipe, time, zutaten) {
     }
   }
 
-  // Consume zutat
-  if (recipe.requiresZutat && zutaten) {
-    removeZutat(zutaten, recipe.requiresZutat);
+  // Consume zutaten
+  if (zutaten) {
+    for (const key of requiredZutaten(recipe)) {
+      removeZutat(zutaten, key);
+    }
   }
 
   const prep = {

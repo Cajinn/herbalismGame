@@ -401,8 +401,9 @@ export function createBook(root) {
       }
 
       if (recipe.requiresZutat) {
+        const zutatNames = [].concat(recipe.requiresZutat).map(zutatName).join(", ");
         const note = el("p",
-          `${strings.werkstatt.benoetigtZutat}${zutatName(recipe.requiresZutat)} ${strings.werkstatt.baldigVerfuegbar}`
+          `${strings.werkstatt.benoetigtZutat}${zutatNames} ${strings.werkstatt.baldigVerfuegbar}`
         );
         note.className = "book__rezept-note";
         card.appendChild(note);
@@ -590,7 +591,7 @@ export function createBook(root) {
   function zutatName(key) {
     const names = {
       schnaps: "Schnaps", olivenoel: "Olivenöl", bienenwachs: "Bienenwachs",
-      honig: "Honig", zucker: "Zucker",
+      honig: "Honig", zucker: "Zucker", pfeffer: "Schwarzer Pfeffer",
     };
     return names[key] ?? key;
   }

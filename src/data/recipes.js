@@ -605,8 +605,8 @@ export const recipes = [
     output: "hausmittel",
     durationDays: 1,
     inputs: [{ processed: null }],
-    requiresZutat: "honig",
-    mengeDe: "1 TL Kurkumapulver mit warmer Milch und 1 TL Honig verrühren, kurz erwärmen — Goldene Milch",
+    requiresZutat: ["honig", "pfeffer"],
+    mengeDe: "1 TL Kurkumapulver mit warmer Milch, 1 TL Honig und einer Prise schwarzem Pfeffer verrühren, kurz erwärmen — erst der Pfeffer macht das Kurkuma für den Körper verfügbar",
     wirkungDe: "entzündungshemmend, wärmend — bewährt bei Erkältung und Gelenkschmerzen",
   },
   {

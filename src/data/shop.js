@@ -155,6 +155,15 @@ export const shopCatalog = [
   },
   // ── M6 Exotische Hausmittel ──────────────────────────────────────────────────
   {
+    id: "shop-pfeffer",
+    kind: "zutat",
+    ref: "pfeffer",
+    nameDe: "Schwarzer Pfeffer",
+    descDe: "Eine Prise gehört in die Goldene Milch — schliesst das Kurkuma auf",
+    preis: 5,
+    stock: 3,
+  },
+  {
     id: "shop-kurkuma",
     kind: "produce",
     ref: "kurkuma",

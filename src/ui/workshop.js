@@ -3,7 +3,7 @@ import { herbs } from "../data/herbs/index.js";
 import { methods } from "../data/methods.js";
 import { recipes, recipesForStation } from "../data/recipes.js";
 import { groupInventory, countItem } from "../sim/inventory.js";
-import { prepProgress } from "../sim/processing.js";
+import { prepProgress, requiredZutaten } from "../sim/processing.js";
 import { countZutat } from "../sim/zutaten.js";
 
 // Workshop dialog opened when the player interacts with a station in the
@@ -94,18 +94,20 @@ export function createWorkshopDialog(root, { onStartDrying, onStartRecipe, onSle
           `${herb.nameDe} (${strings.teile[recipe.teil]}) → ${strings.verarbeitet[recipe.output] ?? recipe.output}`
         );
 
-        const zutatKey = recipe.requiresZutat;
-        const hasZutat = !zutatKey || countZutat(zutaten ?? {}, zutatKey) > 0;
+        const missingZutaten = requiredZutaten(recipe).filter(
+          (key) => countZutat(zutaten ?? {}, key) < 1,
+        );
+        const hasZutat = missingZutaten.length === 0;
         const canMake = hasZutat && canStartRecipe(recipe, inventory);
 
         const btn = makeBtn(strings.werkstatt.beginnen, () => {
           if (onStartRecipe(recipe)) close();
         });
 
-        if (zutatKey && !hasZutat) {
+        if (!hasZutat) {
           btn.disabled = true;
           const note = el("span",
-            `${strings.werkstatt.benoetigtZutat}${zutatName(zutatKey)} ${strings.werkstatt.imLaden}`
+            `${strings.werkstatt.benoetigtZutat}${missingZutaten.map(zutatName).join(", ")} ${strings.werkstatt.imLaden}`
           );
           note.className = "workshop__note";
           row.append(name, note, btn);
@@ -139,7 +141,7 @@ export function createWorkshopDialog(root, { onStartDrying, onStartRecipe, onSle
   function zutatName(key) {
     const names = {
       schnaps: "Schnaps", olivenoel: "Olivenöl", bienenwachs: "Bienenwachs",
-      honig: "Honig", zucker: "Zucker", zitrone: "Zitrone",
+      honig: "Honig", zucker: "Zucker", zitrone: "Zitrone", pfeffer: "Schwarzer Pfeffer",
     };
     return names[key] ?? key;
   }
