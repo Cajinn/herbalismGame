@@ -4,8 +4,7 @@
 // Sprout Lands tiles:
 //   grass[55] = flat ground  grass[56] = alt
 //   water[0]  = teal water
-//   bridge[5] = vertical bridge left plank (row1 col0) — used as bridge over stream
-//   bridge[6] = vertical bridge right plank (row1 col1)
+//   bridge object (assets/objects/bridge.png) spans the stream at the path row
 //   dirt[55]  = sandy path
 //   biom[27]  = pink bush  biom[28] = rose bush
 export const bachufer = {
@@ -23,7 +22,7 @@ export const bachufer = {
     "=": { solid: false, color: "#3a6ea5", wang: "pl_gw", terrain: "water" },
   },
   grid: [
-    "TTTTTTTTTTTTTTTTOOOTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTTTTOOTTTTTTTTTTTT",
     "T................OO...........T",
     "T................OO.......B...T",
     "T....B...........OO...........T",
@@ -33,7 +32,7 @@ export const bachufer = {
     "T................OO...........T",
     "T................OO...........T",
     "T................OO...........T",
-    "################==#############",  // bridge over the stream at cols 16-17
+    "#################==############",  // bridge over the stream at cols 17-18
     "T................OO...........T",
     "T....B...........OO...........T",
     "T................OO...........T",
@@ -42,7 +41,7 @@ export const bachufer = {
     "T....B...........OO...........T",
     "T................OO...........T",
     "T................OO...........T",
-    "TTTTTTTTTTTTTTTTOOOTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTTTTOOTTTTTTTTTTTT",
   ],
   playerSpawn: { x: 29, y: 10 },
   exits: [
@@ -58,8 +57,10 @@ export const bachufer = {
     { name: "wildflowers",  x: 6,  y: 4,  tilew: 1, tileh: 1 },
     { name: "wildflowers",  x: 22, y: 2,  tilew: 1, tileh: 1 },
     { name: "wildflowers",  x: 25, y: 14, tilew: 1, tileh: 1 },
-    // Bridge over stream at road crossing (cols 17-18)
-    { name: "bridge", x: 16, y: 10, tilew: 2, tileh: 1 },
+    // Bridge over stream at the road crossing. Art is 38x28 px (2.375x1.75
+    // tiles at native scale): fractional x/y center the walkway on the water
+    // columns (17-18) and path row 10, railings overhanging the banks.
+    { name: "bridge", x: 16.8125, y: 9.625, tilew: 2.375, tileh: 1.75 },
     // Shrubs replacing former B biom tiles
     { name: "shrub", x: 26, y: 2,  tilew: 1, tileh: 1 },
     { name: "shrub", x: 5,  y: 3,  tilew: 1, tileh: 1 },
