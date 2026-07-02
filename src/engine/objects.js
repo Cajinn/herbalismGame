@@ -44,6 +44,22 @@ export function renderObjects(ctx, map, camera, scale) {
     const screenX = Math.round(obj.x * ts * scale - camera.x * scale);
     const screenY = Math.round(obj.y * ts * scale - camera.y * scale);
 
+    // Soft ground shadow for free-standing furniture — opt-in via `shadow: true`
+    // on the object def (wall-mounted/flat pieces skip it). Drawn at the
+    // sprite's base, before the sprite itself, so it reads as sitting under it.
+    if (obj.shadow) {
+      const cx = screenX + drawW / 2;
+      const cy = screenY + drawH;
+      const rx = tw * 0.45 * ts * scale;
+      const ry = th * 0.15 * ts * scale;
+      ctx.save();
+      ctx.fillStyle = "rgba(0,0,0,0.18)";
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     ctx.drawImage(img, screenX, screenY, drawW, drawH);
   }
 
