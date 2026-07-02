@@ -37,6 +37,7 @@ import { createBoardDialog } from "./ui/board.js";
 import { createMapPanel } from "./ui/map.js";
 import { createDepositPanel } from "./ui/deposit.js";
 import { createMainMenu } from "./ui/menu.js";
+import { sfx, setScene } from "./engine/audio.js";
 import { createVillagerStatus, tickVillagerStatus, makeVillagerSick } from "./sim/villagerStatus.js";
 import { methods } from "./data/methods.js";
 import { strings } from "./data/strings.de.js";
@@ -324,6 +325,8 @@ function onDayComplete() {
   // by other showMessage calls in this function.
   rollWeather(weather, time);
   if (weather.today === "regen") waterAllBeds(garden, time);
+  sfx("sleep");
+  syncAmbience(); // rain layer may need to fade in/out with the new weather
 
   const completed = tickAndComplete(processingState, inventory, time, { hardMode });
   for (const prep of completed) {
@@ -375,11 +378,19 @@ function refreshView() {
   updateCamera(camera, player, mapWidth, mapHeight);
 }
 
+// Ambient scene the audio engine should be crossfading to right now, derived
+// from the same two signals the visuals already use: `map.ambient` (every
+// interior sets it, every outdoor map omits it) and today's weather.
+function syncAmbience() {
+  setScene({ indoor: !!map.ambient, rain: weather.today === "regen" });
+}
+
 function doTransition(exit) {
   map = loadMap(exit.target);
   player.x = exit.spawn.x * map.tileSize;
   player.y = exit.spawn.y * map.tileSize;
   refreshView();
+  syncAmbience();
 }
 
 // Fast-travel from the overview map. Returns false when the trip is refused
@@ -450,6 +461,7 @@ function updateInteractables() {
   } else if (nearbySpawn) {
     hud.setPrompt(strings.interaktion.hinweis);
     if (consumeJustPressed("interact")) {
+      sfx("blip");
       recordSighting(progress, nearbySpawn.species);
       identifyDialog.open(nearbySpawn);
     }
@@ -457,25 +469,32 @@ function updateInteractables() {
     hud.setPrompt(strings.interaktionStation[nearbyStation.type] ?? `[E] ${nearbyStation.type}`);
     if (consumeJustPressed("interact")) {
       if (nearbyStation.type === "buchstand") {
+        sfx("page");
         book.open(progress, time);
       } else if (nearbyStation.type === "dorfladen") {
+        sfx("blip");
         shopDialog.open(coins, { hardMode, stock: shopStock });
       } else if (nearbyStation.type === "anschlagbrett") {
+        sfx("blip");
         boardDialog.open(requests);
       } else if (nearbyStation.type === "abgabebox") {
+        sfx("blip");
         depositPanel.open(requests, inventory);
       } else {
+        sfx("blip");
         workshopDialog.open(nearbyStation.type, inventory, processingState, time, zutaten);
       }
     }
   } else if (nearbyBed) {
     hud.setPrompt(strings.interaktionStation.beet);
     if (consumeJustPressed("interact")) {
+      sfx("blip");
       gardenDialog.open(nearbyBed, garden, seeds);
     }
   } else if (nearbyNpc) {
     hud.setPrompt(`${strings.interaktion.npc} (${nearbyNpc.nameDe})`);
     if (consumeJustPressed("interact")) {
+      sfx("blip");
       villagerDialog.open(nearbyNpc, requests, inventory);
     }
   } else {
@@ -498,6 +517,7 @@ function handleExamine(speciesId, key) {
 
 function handleHarvest(spawn, teil) {
   if (spawn.herb.geschuetzt && !spawn.labeledAs) {
+    sfx("error");
     hud.showMessage(strings.quest.geschuetztEingegriffen);
     addVertrauen(reputation, "margrit", -3);
     persist();
@@ -511,6 +531,7 @@ function handleHarvest(spawn, teil) {
   }
   harvested.add(spawn.id);
   persist();
+  sfx("harvest");
   const displayName = spawn.labeledAs ? (herbs[spawn.labeledAs]?.nameDe ?? spawn.labeledAs) : spawn.herb.nameDe;
   hud.showMessage(`${displayName} (${strings.teile[teil]}) ×${n} ${strings.meldungen.gesammelt}`);
 }
@@ -532,15 +553,24 @@ const hud = createHud(uiRoot, {
     persist();
     hud.showMessage(strings.meldungen.gespeichert);
   },
-  onToggleInventory: () => inventoryPanel.toggle(inventory, {
-    onDiscard(group) {
-      discardItems(inventory, group);
-      persist();
-      inventoryPanel.refresh(inventory);
-    },
-  }),
-  onOpenBook: () => book.open(progress, time),
-  onOpenMap: () => mapPanel.toggle(map.id),
+  onToggleInventory: () => {
+    sfx("blip");
+    inventoryPanel.toggle(inventory, {
+      onDiscard(group) {
+        discardItems(inventory, group);
+        persist();
+        inventoryPanel.refresh(inventory);
+      },
+    });
+  },
+  onOpenBook: () => {
+    sfx("page");
+    book.open(progress, time);
+  },
+  onOpenMap: () => {
+    sfx("blip");
+    mapPanel.toggle(map.id);
+  },
   onNewGame: () => {
     if (!window.confirm(strings.hud.neuesSpielFrage)) return;
     menu.show(); // back to the main menu to pick a slot / start fresh
@@ -564,8 +594,16 @@ const identifyDialog = createIdentifyDialog(uiRoot, {
 });
 
 const workshopDialog = createWorkshopDialog(uiRoot, {
-  onStartDrying: (species, teil) => startDrying(processingState, inventory, species, teil, time),
-  onStartRecipe: (recipe) => startRecipe(processingState, inventory, recipe, time, zutaten),
+  onStartDrying: (species, teil) => {
+    const ok = startDrying(processingState, inventory, species, teil, time);
+    sfx(ok ? "brew" : "error");
+    return ok;
+  },
+  onStartRecipe: (recipe) => {
+    const ok = startRecipe(processingState, inventory, recipe, time, zutaten);
+    sfx(ok ? "brew" : "error");
+    return ok;
+  },
   onSleep: doSleep,
 });
 
@@ -575,10 +613,16 @@ inventoryPanel = createInventoryPanel(uiRoot);
 
 const shopDialog = createShopDialog(uiRoot, {
   onBuy(item, preis) {
-    if (coins < preis) return false;
+    if (coins < preis) {
+      sfx("error");
+      return false;
+    }
     // WP4b: Hard Mode stock check — sold-out items cannot be purchased.
     if (hardMode && item.stock != null) {
-      if ((shopStock[item.id] ?? 0) <= 0) return false;
+      if ((shopStock[item.id] ?? 0) <= 0) {
+        sfx("error");
+        return false;
+      }
     }
     coins -= preis;
     if (item.kind === "zutat") {
@@ -597,6 +641,7 @@ const shopDialog = createShopDialog(uiRoot, {
     }
     hud.setStats({ coins });
     persist();
+    sfx("coin");
     hud.showMessage(`${item.nameDe} ${strings.meldungen.gekauft}`);
     return true;
   },
@@ -616,6 +661,7 @@ const gardenDialog = createGardenDialog(uiRoot, {
     const species = harvestBed(garden, bedId, inventory, progress);
     if (species) {
       const name = herbs[species]?.nameDe ?? species;
+      sfx("harvest");
       hud.showMessage(`${name} ${strings.meldungen.geerntet}`);
       persist();
       return true;
@@ -652,6 +698,7 @@ const villagerDialog = createVillagerDialog(uiRoot, {
       recordDelivery(progress, item.species);
       resolveRequest(requests, requestId);
       hud.setStats({ coins });
+      sfx("coin");
       hud.showMessage(strings.meldungen.geliefert);
       persist();
     } else if (result === "toxic") {
@@ -659,7 +706,10 @@ const villagerDialog = createVillagerDialog(uiRoot, {
       makeVillagerSick(villagerStatus, request.villagerId, 3, item.species);
       addVertrauen(reputation, request.villagerId, -DELIVERY_VERTRAUEN * 2);
       resolveRequest(requests, requestId);
+      sfx("error");
       persist();
+    } else {
+      sfx("error");
     }
     return result;
   },
@@ -682,6 +732,7 @@ const depositPanel = createDepositPanel(uiRoot, {
       recordDelivery(progress, item.species);
       resolveRequest(requests, requestId);
       hud.setStats({ coins });
+      sfx("coin");
       hud.showMessage(strings.meldungen.geliefert);
       persist();
     } else if (result === "toxic") {
@@ -689,7 +740,10 @@ const depositPanel = createDepositPanel(uiRoot, {
       makeVillagerSick(villagerStatus, request.villagerId, 3, item.species);
       addVertrauen(reputation, request.villagerId, -DELIVERY_VERTRAUEN * 2);
       resolveRequest(requests, requestId);
+      sfx("error");
       persist();
+    } else {
+      sfx("error");
     }
     return result;
   },
@@ -734,6 +788,7 @@ function enterGame() {
   hud.setStats({ coins });
   hud.setWeather(weather.today);
   menu.hide();
+  syncAmbience(); // ambient only starts once a game is actually entered
 }
 
 function newGame(slot) {

@@ -32,6 +32,8 @@ export const strings = {
     neuesSpiel: "Neues Spiel",
     neuesSpielFrage:
       "Neues Spiel beginnen? Dein aktueller Spielstand wird unwiderruflich gelöscht.",
+    tonAn: "🔊 Ton",
+    tonAus: "🔇 Stumm",
   },
   karte: {
     titel: "Karte des Umlands",

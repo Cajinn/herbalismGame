@@ -1,5 +1,6 @@
 import { strings } from "../data/strings.de.js";
 import { formatClock, getSeasonKey, DAYS_PER_SEASON } from "../sim/time.js";
+import { sfx, isMuted, setMuted } from "../engine/audio.js";
 
 // DOM overlay (PLAN.md §2: UI is DOM/CSS, not canvas) showing the clock and
 // the Schlafen/Speichern actions.
@@ -43,7 +44,20 @@ export function createHud(root, { onSleep, onSave, onToggleInventory, onOpenBook
   neuesSpielBtn.textContent = strings.hud.neuesSpiel;
   neuesSpielBtn.addEventListener("click", onNewGame);
 
-  actions.append(sleepBtn, saveBtn, inventarBtn, buchBtn, karteBtn, neuesSpielBtn);
+  // Mute toggle — a device preference (persisted in audio.js via localStorage,
+  // outside the save slots), so it just reflects/flips engine state directly.
+  const muteBtn = document.createElement("button");
+  function refreshMuteBtn() {
+    muteBtn.textContent = isMuted() ? strings.hud.tonAus : strings.hud.tonAn;
+  }
+  refreshMuteBtn();
+  muteBtn.addEventListener("click", () => {
+    setMuted(!isMuted());
+    refreshMuteBtn();
+    sfx("blip"); // no-ops silently if we just muted
+  });
+
+  actions.append(sleepBtn, saveBtn, inventarBtn, buchBtn, karteBtn, neuesSpielBtn, muteBtn);
   hud.append(timeEl, weatherEl, statsEl, actions);
   root.appendChild(hud);
 
