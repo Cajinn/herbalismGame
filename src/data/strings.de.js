@@ -145,11 +145,21 @@ export const strings = {
     baldigVerfuegbar: "(bald im Dorfladen)",
     imLaden: "(im Dorfladen kaufen)",
     fertigung: "Sofort fertig",
+    // ── Interactive crafting screen (workshop.js) ─────────────────────────
+    zutatenbord: "Zutatenbord",
+    pflegeAktionen: { wenden: "Wenden", schuetteln: "Schütteln" },
+    versorgt: "Versorgt ✓",
+    pflegeHinweis: "Regelmässige Pflege verbessert die Qualität.",
+    leerDachboden: "Nichts zum Verarbeiten hier — sammle zuerst Kräuter.",
+    leerBoard: "Noch nichts auf dem Bord — sammle oder kaufe die passenden Zutaten.",
+    waehleKraut: "Wähle ein Kraut vom Bord.",
+    fehltImLaden: "fehlt — im Laden",
   },
   meldungenVerarbeitung: {
     gestartet: "Verarbeitung gestartet.",
     fertig: "fertig!",
     baldigVerfuegbar: "kommt mit dem Dorfladen.",
+    gepflegt: (aktion) => `${aktion} erledigt.`,
   },
   buch: {
     titel: "Herbalism Game",

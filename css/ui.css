@@ -147,7 +147,6 @@ body {
 .hud__actions button,
 .identify button,
 .inventory button,
-.workshop button,
 .shop-dialog__panel button,
 .garden-dialog__panel button,
 .villager-dialog__panel button,
@@ -170,7 +169,6 @@ body {
 .hud__actions button:hover,
 .identify button:hover,
 .inventory button:hover,
-.workshop button:hover:not(:disabled),
 .shop-dialog__panel button:hover:not(:disabled),
 .garden-dialog__panel button:hover:not(:disabled),
 .villager-dialog__panel button:hover:not(:disabled),
@@ -182,7 +180,6 @@ body {
 }
 
 .identify button:disabled,
-.workshop button:disabled,
 .shop-dialog__panel button:disabled,
 .garden-dialog__panel button:disabled {
   opacity: 0.45;
@@ -247,7 +244,6 @@ body {
 /* ── Shared wooden-panel overlay backdrop ────────────────────────────────── */
 
 .identify,
-.workshop,
 .shop-dialog,
 .garden-dialog,
 .villager-dialog,
@@ -264,7 +260,6 @@ body {
 
 /* Preserve [hidden] → display:none for all overlay toggles */
 .identify[hidden],
-.workshop[hidden],
 .shop-dialog[hidden],
 .garden-dialog[hidden],
 .villager-dialog[hidden],
@@ -276,7 +271,6 @@ body {
 /* ── Shared wooden panel inner box ──────────────────────────────────────────── */
 
 .identify__panel,
-.workshop__panel,
 .shop-dialog__panel,
 .garden-dialog__panel,
 .villager-dialog__panel,
@@ -309,7 +303,6 @@ body {
 /* ── Dialog titles ──────────────────────────────────────────────────────────── */
 
 .identify__title,
-.workshop__title,
 .shop-dialog__title,
 .garden-dialog__title,
 .villager-dialog__name,
@@ -602,61 +595,7 @@ body {
   list-style: none;
 }
 
-/* ── Workshop dialog ────────────────────────────────────────────────────────── */
-
-.workshop__list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.workshop__row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.workshop__row > span:first-child {
-  flex: 1;
-  font-size: 13px;
-  color: var(--text-dark);
-}
-
-.workshop__running {
-  padding: 8px 10px;
-  background: var(--cream-deep);
-  border-radius: 6px;
-  border: 2px solid var(--wood-light);
-}
-
-.workshop__running-label {
-  margin: 0 0 4px;
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--wood-deep);
-}
-
-.workshop__running p {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.workshop__note {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.workshop__note--warn {
-  color: #b03030;
-}
-
-.workshop__close {
-  align-self: center;
-  margin-top: 4px;
-}
+/* ── Workshop (interactive crafting screen) now lives in css/workshop.css ── */
 
 /* ── Shop dialog ────────────────────────────────────────────────────────────── */
 

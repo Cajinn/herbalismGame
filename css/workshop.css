@@ -1,0 +1,445 @@
+/* ── Workshop — interactive crafting screen ─────────────────────────────────
+   Full-viewport wooden overlay (fills #ui-root, i.e. the whole 960×672 game
+   box — see engine/fit.js) styled like the inside of the station itself,
+   not a floating list dialog. Reuses the cozy wooden CSS vars from ui.css.
+   Layout:
+     .workshop__header        station art + title + close ×
+     .workshop__running       "In Arbeit" shelf (only when preps are running)
+     .workshop__craft         two-panel crafting area
+       .workshop__board         left: Zutatenbord shelf
+       .workshop__recipes       right: Rezepte cards (or the Trocknen flow)
+     .workshop__bett           trivial centered Schlafen panel
+──────────────────────────────────────────────────────────────────────────── */
+
+.workshop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 28, 12, 0.62);
+  pointer-events: auto;
+}
+
+.workshop[hidden] {
+  display: none;
+}
+
+.workshop__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 94%;
+  height: 90%;
+  padding: 14px 18px;
+  background: var(--cream);
+  border: 4px solid var(--wood-deep);
+  border-radius: 10px;
+  box-shadow: 0 6px 28px rgba(60, 30, 5, 0.55),
+              inset 0 2px 0 rgba(196, 160, 106, 0.55),
+              inset 0 -1px 0 rgba(122, 82, 48, 0.3);
+  color: var(--text-dark);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.workshop__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  border-bottom: 2px solid var(--wood-light);
+  padding-bottom: 8px;
+}
+
+.workshop__art {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: var(--cream-deep);
+  border: 2px solid var(--wood-light);
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.workshop__title {
+  flex: 1;
+  margin: 0;
+  font-size: 20px;
+  color: var(--wood-deep);
+}
+
+.workshop__close-x {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 50%;
+  border: 2px solid var(--wood-deep);
+  background: var(--wood-mid);
+  color: var(--text-cream);
+  cursor: pointer;
+}
+
+.workshop__close-x:hover {
+  background: var(--wood-light);
+}
+
+/* ── "In Arbeit" shelf ──────────────────────────────────────────────────── */
+
+.workshop__running {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  background: var(--cream-deep);
+  border-radius: 8px;
+  border: 2px solid var(--wood-light);
+}
+
+.workshop__running-label {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--wood-deep);
+}
+
+.workshop__running-shelf {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.workshop__prep-card {
+  flex: 0 0 auto;
+  width: 148px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: var(--cream);
+  border: 2px solid var(--wood-light);
+  border-radius: 8px;
+}
+
+.workshop__prep-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.workshop__prep-img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.workshop__prep-name {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workshop__prep-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--wood-highlight);
+  overflow: hidden;
+}
+
+.workshop__prep-bar-fill {
+  height: 100%;
+  background: var(--green-accent);
+}
+
+.workshop__prep-remaining {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.workshop__care-btn {
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: bold;
+  border: 2px solid #a85a1e;
+  border-radius: 6px;
+  background: #d98a3d;
+  color: #3a2308;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(80, 40, 10, 0.3);
+}
+
+.workshop__care-btn:hover {
+  background: #e79c50;
+}
+
+.workshop__care-done {
+  margin: 0;
+  font-size: 11px;
+  color: var(--green-accent);
+  font-weight: bold;
+}
+
+.workshop__care-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+/* ── Craft area ─────────────────────────────────────────────────────────── */
+
+.workshop__craft {
+  flex: 1;
+  display: flex;
+  gap: 14px;
+  min-height: 0;
+}
+
+.workshop__board,
+.workshop__recipes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding: 10px;
+  background: var(--cream-deep);
+  border: 2px solid var(--wood-light);
+  border-radius: 8px;
+}
+
+.workshop__board {
+  flex: 0 0 34%;
+}
+
+.workshop__recipes {
+  flex: 1;
+}
+
+.workshop__board-title {
+  margin: 0 0 2px;
+  font-size: 14px;
+  color: var(--wood-deep);
+  border-bottom: 1px solid var(--wood-light);
+  padding-bottom: 4px;
+}
+
+.workshop__board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+.workshop__board-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: 6px 4px;
+  font-family: var(--font-ui);
+  background: var(--cream);
+  border: 2px solid var(--wood-light);
+  border-radius: 6px;
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+.workshop__board-item:hover {
+  border-color: var(--wood-mid);
+}
+
+.workshop__board-item--selected {
+  border-color: var(--green-accent);
+  box-shadow: 0 0 0 2px var(--green-accent);
+  background: var(--green-light);
+}
+
+.workshop__herb-img,
+.workshop__board-item canvas {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.workshop__board-name {
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.workshop__board-meta,
+.workshop__board-quality {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.workshop__empty {
+  margin: auto;
+  padding: 16px;
+  text-align: center;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+/* ── Recipe cards ───────────────────────────────────────────────────────── */
+
+.workshop__recipe-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--cream);
+  border: 2px solid var(--wood-light);
+  border-radius: 8px;
+}
+
+.workshop__recipe-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workshop__recipe-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+.workshop__slots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.workshop__slot {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--wood-light);
+  border-radius: 6px;
+  background: var(--cream-deep);
+}
+
+.workshop__slot-img {
+  width: 28px;
+  height: 28px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.workshop__slot--missing {
+  border-color: #b03030;
+}
+
+.workshop__slot--missing .workshop__slot-img {
+  filter: grayscale(1) opacity(0.4);
+}
+
+.workshop__slot-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.workshop__zutaten {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.workshop__zutat-badge {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.workshop__zutat-badge--ok {
+  color: #3a6b1f;
+  border-color: var(--green-accent);
+  background: rgba(124, 179, 66, 0.15);
+}
+
+.workshop__zutat-badge--missing {
+  color: #b03030;
+  border-color: #b03030;
+  background: rgba(176, 48, 48, 0.1);
+}
+
+.workshop__recipe-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.workshop__recipe-duration {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.workshop__begin-btn {
+  min-height: 44px;
+  min-width: 110px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: bold;
+  padding: 6px 16px;
+  border: 2px solid var(--wood-deep);
+  border-radius: 6px;
+  background: var(--wood-mid);
+  color: var(--text-cream);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(80, 40, 10, 0.3),
+              inset 0 1px 0 rgba(196, 160, 106, 0.45);
+}
+
+.workshop__begin-btn:hover:not(:disabled) {
+  background: var(--wood-light);
+}
+
+.workshop__begin-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.workshop__note {
+  margin: 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.workshop__note--warn {
+  color: #b03030;
+}
+
+/* ── Bett ───────────────────────────────────────────────────────────────── */
+
+.workshop__bett {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

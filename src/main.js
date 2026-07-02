@@ -605,6 +605,13 @@ const workshopDialog = createWorkshopDialog(uiRoot, {
     return ok;
   },
   onSleep: doSleep,
+  onCare: (prepId, action) => {
+    recordCare(processingState, prepId, action, time);
+    persist();
+    const label = strings.werkstatt.pflegeAktionen[action] ?? action;
+    hud.showMessage(strings.meldungenVerarbeitung.gepflegt(label));
+    sfx("blip");
+  },
 });
 
 const book = createBook(uiRoot);
