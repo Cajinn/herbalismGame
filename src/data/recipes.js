@@ -596,6 +596,31 @@ export const recipes = [
     mengeDe: "1 Teil getrocknete Blüten in 10 Teilen 70 % Alkohol, 3 Wochen ziehen — NUR äußerlich!",
     wirkungDe: "entzündungshemmend, schmerzlindernd — Arnikatinktur bei Prellungen und Muskeln (NUR äußerlich!)",
   },
+  // ── M6 Exotische Hausmittel ────────────────────────────────────────────────
+  {
+    id: "kurkuma-wurzel-goldene-milch",
+    species: "kurkuma",
+    teil: "wurzel",
+    method: "hausmittel",
+    output: "hausmittel",
+    durationDays: 1,
+    inputs: [{ processed: null }],
+    requiresZutat: "honig",
+    mengeDe: "1 TL Kurkumapulver mit warmer Milch und 1 TL Honig verrühren, kurz erwärmen — Goldene Milch",
+    wirkungDe: "entzündungshemmend, wärmend — bewährt bei Erkältung und Gelenkschmerzen",
+  },
+  {
+    id: "ingwer-wurzel-tee",
+    species: "ingwer",
+    teil: "wurzel",
+    method: "tee",
+    output: "tee",
+    durationDays: 0,
+    inputs: [{ processed: null }],
+    mengeDe: "1 daumengroßes Stück Ingwer in Scheiben, mit 250 ml heißem Wasser übergießen, 10 Min ziehen",
+    wirkungDe: "wärmend, verdauungsfördernd, gegen Übelkeit — klassischer Ingwertee bei Erkältung und Magenbeschwerden",
+  },
+
   // ── Wacholder ────────────────────────────────────────────────────────────────
   {
     id: "wacholder-beeren-tinktur",

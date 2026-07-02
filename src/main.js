@@ -565,6 +565,9 @@ const shopDialog = createShopDialog(uiRoot, {
       seeds[item.ref] = (seeds[item.ref] ?? 0) + 1;
     } else if (item.kind === "produce") {
       addItem(inventory, item.ref, item.teil ?? item.ref);
+      // Buying counts as "gesehen", so the book's Rezepte chapter lists the
+      // produce recipes (Zwiebelsirup, Goldene Milch, …) after purchase.
+      recordSighting(progress, item.ref);
     }
     // WP4b: Decrement stock in Hard Mode.
     if (hardMode && item.stock != null) {

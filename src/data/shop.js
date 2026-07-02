@@ -153,4 +153,25 @@ export const shopCatalog = [
     preis: 3,
     stock: 4,
   },
+  // ── M6 Exotische Hausmittel ──────────────────────────────────────────────────
+  {
+    id: "shop-kurkuma",
+    kind: "produce",
+    ref: "kurkuma",
+    teil: "wurzel",
+    nameDe: "Kurkuma",
+    descDe: "Für die Goldene Milch — exotisches Gewürz, kommt von weither",
+    preis: 6,
+    stock: 3,
+  },
+  {
+    id: "shop-ingwer",
+    kind: "produce",
+    ref: "ingwer",
+    teil: "wurzel",
+    nameDe: "Ingwer",
+    descDe: "Für Ingwertee bei Erkältung und Magenbeschwerden — kommt von weither",
+    preis: 4,
+    stock: 4,
+  },
 ];

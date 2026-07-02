@@ -14,6 +14,9 @@ import { pfefferminze } from "./pfefferminze.js";
 // WP0 küchenzutaten anchors
 import { zwiebel } from "./zwiebel.js";
 import { zitrone } from "./zitrone.js";
+// M6 exotische Hausmittel anchors
+import { kurkuma } from "./kurkuma.js";
+import { ingwer } from "./ingwer.js";
 // WP2 wiese/wegrand
 import { johanniskraut } from "./johanniskraut.js";
 import { rotklee } from "./rotklee.js";
@@ -77,6 +80,9 @@ export const herbs = {
   // WP0 kitchen anchors
   zwiebel,
   zitrone,
+  // M6 exotische Hausmittel anchors
+  kurkuma,
+  ingwer,
   // WP2 wiese/wegrand
   johanniskraut,
   rotklee,

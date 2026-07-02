@@ -16,6 +16,8 @@ export const ailments = {
       { species: "zitrone",       output: "tee" },
       { species: "salbei",        output: "tee" },
       { species: "thymian",       output: "tee" },
+      { species: "kurkuma",       output: "hausmittel" },
+      { species: "ingwer",        output: "tee" },
     ],
   },
   husten: {
@@ -40,6 +42,7 @@ export const ailments = {
       { species: "loewenzahn",  output: "tee" },
       { species: "schafgarbe",  output: "tee" },
       { species: "kamille",     output: "tee" },
+      { species: "ingwer",      output: "tee" },
     ],
   },
   fruehjahrsmuedigkeit: {
@@ -70,6 +73,7 @@ export const ailments = {
     seasons: ["herbst", "winter"],
     validRemedies: [
       { species: "ringelblume", output: "salbe" },
+      { species: "kurkuma",     output: "hausmittel" },
     ],
   },
   wunde: {
