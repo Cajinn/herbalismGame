@@ -10,6 +10,9 @@ export function createHud(root, { onSleep, onSave, onToggleInventory, onOpenBook
   const timeEl = document.createElement("div");
   timeEl.className = "hud__time";
 
+  const weatherEl = document.createElement("div");
+  weatherEl.className = "hud__weather";
+
   const statsEl = document.createElement("div");
   statsEl.className = "hud__stats";
 
@@ -41,7 +44,7 @@ export function createHud(root, { onSleep, onSave, onToggleInventory, onOpenBook
   neuesSpielBtn.addEventListener("click", onNewGame);
 
   actions.append(sleepBtn, saveBtn, inventarBtn, buchBtn, karteBtn, neuesSpielBtn);
-  hud.append(timeEl, statsEl, actions);
+  hud.append(timeEl, weatherEl, statsEl, actions);
   root.appendChild(hud);
 
   const messageEl = document.createElement("div");
@@ -63,6 +66,9 @@ export function createHud(root, { onSleep, onSave, onToggleInventory, onOpenBook
     },
     setStats({ coins }) {
       statsEl.textContent = `${strings.hud.muenzen} ${coins}`;
+    },
+    setWeather(weatherKey) {
+      weatherEl.textContent = strings.wetter[weatherKey] ?? "";
     },
     showMessage(text) {
       messageEl.textContent = text;

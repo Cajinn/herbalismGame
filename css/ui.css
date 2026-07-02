@@ -129,6 +129,14 @@ body {
   color: var(--text-dark);
 }
 
+.hud__weather {
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--text-dark);
+  border-left: 2px solid var(--wood-light);
+  padding-left: 12px;
+}
+
 .hud__actions {
   display: flex;
   gap: 6px;

@@ -28,6 +28,17 @@ export function waterBed(garden, bedId, time) {
   return true;
 }
 
+// Rain waters every existing bed for free (called from onDayComplete when the
+// day's weather rolls to "regen"). Reuses waterBed so its reif-guard applies;
+// tickGarden's pause logic is untouched. Beds planted the same day already
+// get lastWateredDay stamped to "today" by plantSeed itself, rain or not, so
+// no separate hook is needed at plant time.
+export function waterAllBeds(garden, time) {
+  for (const bedId of Object.keys(garden.beds)) {
+    waterBed(garden, bedId, time);
+  }
+}
+
 // Called once per day from onDayComplete. Advances stage for watered beds.
 // Days required: 4 total to reach wachsend, 10 total to reach reif (from planting).
 // Un-watered days simply pause growth — no wilting.

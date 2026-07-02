@@ -22,7 +22,8 @@ import { createProgress, recordSighting, recordMerkmalReveal, recordCraft, recor
 import { createProcessingState, startDrying, startRecipe, tickAndComplete, recordCare } from "./sim/processing.js";
 import { createReputation, addVertrauen, getVillageVertrauen } from "./sim/reputation.js";
 import { createZutaten, addZutat } from "./sim/zutaten.js";
-import { createGarden, plantSeed, waterBed, harvestBed, tickGarden } from "./sim/garden.js";
+import { createGarden, plantSeed, waterBed, harvestBed, tickGarden, waterAllBeds } from "./sim/garden.js";
+import { createWeather, rollWeather } from "./sim/weather.js";
 import { createRequests, generateDailyRequests, requestForVillager, resolveRequest, evaluateDelivery } from "./sim/requests.js";
 import { createHud } from "./ui/hud.js";
 import { createIdentifyDialog } from "./ui/identify.js";
@@ -195,6 +196,11 @@ let seeds = {};
 let reputation = createReputation();
 let requests = createRequests();
 let garden = createGarden();
+// Optional weather (stretch goal): global daily weather, rolled once per day
+// rollover in onDayComplete(). "sonnig" is just the initial placeholder until
+// the first roll (new game rolls immediately in resetState(); old saves roll
+// on their next day, see applySave()'s fallback).
+let weather = createWeather();
 // M5 state
 let villagerStatus = createVillagerStatus();
 let quests = { alpweideUnlocked: false };
@@ -248,6 +254,9 @@ function applySave(saved) {
   if (saved.reputation)     reputation     = saved.reputation;
   if (saved.requests)       requests       = saved.requests;
   if (saved.garden)         garden         = saved.garden;
+  // Additive field — old saves without it just get the "sonnig" placeholder
+  // and roll properly on their next day rollover.
+  weather = saved.weather ?? createWeather();
   villagerStatus = saved.villagerStatus ?? createVillagerStatus();
   quests         = saved.quests         ?? { alpweideUnlocked: false };
   introSeen      = saved.introSeen      ?? false;
@@ -297,6 +306,7 @@ function persist() {
     reputation,
     requests,
     garden,
+    weather,
     villagerStatus,
     quests,
     introSeen,
@@ -307,6 +317,14 @@ function persist() {
 
 // Called whenever a day boundary is crossed (manual sleep or midnight collapse).
 function onDayComplete() {
+  // Weather: rolled once for the new day. A rainy day waters every existing
+  // garden bed for free (before tickGarden runs, so today's growth check
+  // already sees it) — the "eingeschlafen"/rain message itself is shown by
+  // the caller (doSleep / the update() collapse branch) so it isn't clobbered
+  // by other showMessage calls in this function.
+  rollWeather(weather, time);
+  if (weather.today === "regen") waterAllBeds(garden, time);
+
   const completed = tickAndComplete(processingState, inventory, time, { hardMode });
   for (const prep of completed) {
     recordCraft(progress, prep.species);
@@ -472,7 +490,8 @@ function handleExamine(speciesId, key) {
   if (collapsed) {
     onDayComplete();
     persist();
-    hud.showMessage(strings.meldungen.eingeschlafen);
+    hud.setWeather(weather.today);
+    hud.showMessage(weather.today === "regen" ? strings.meldungen.regenGegossen : strings.meldungen.eingeschlafen);
   }
   return collapsed;
 }
@@ -501,6 +520,8 @@ function doSleep() {
   advanceDay(time);
   persist();
   hud.update(time);
+  hud.setWeather(weather.today);
+  if (weather.today === "regen") hud.showMessage(strings.meldungen.regenGegossen);
 }
 
 let inventoryPanel;
@@ -527,6 +548,7 @@ const hud = createHud(uiRoot, {
 });
 hud.update(time);
 hud.setStats({ coins });
+hud.setWeather(weather.today);
 
 // Hard Mode badge — small indicator shown while hardMode is on.
 const hardModeBadge = document.createElement("div");
@@ -696,6 +718,8 @@ function resetState() {
   reputation = createReputation();
   requests = createRequests();
   garden = createGarden();
+  weather = createWeather();
+  rollWeather(weather, time); // day 1 gets real weather, not the "sonnig" placeholder
   villagerStatus = createVillagerStatus();
   quests = { alpweideUnlocked: false };
   introSeen = true;
@@ -708,6 +732,7 @@ function enterGame() {
   hardModeBadge.hidden = !hardMode;
   hud.update(time);
   hud.setStats({ coins });
+  hud.setWeather(weather.today);
   menu.hide();
 }
 
@@ -775,11 +800,43 @@ function update(dt) {
   if (advanceTime(time, dt)) {
     onDayComplete();
     persist();
-    hud.showMessage(strings.meldungen.eingeschlafen);
+    hud.setWeather(weather.today);
+    hud.showMessage(weather.today === "regen" ? strings.meldungen.regenGegossen : strings.meldungen.eingeschlafen);
   }
 
+  updateRain(dt);
   updateInteractables();
   hud.update(time);
+}
+
+// Rain visual (outdoor maps only): a small pool of falling streaks, advanced
+// once per frame from update(dt) — same frame timing as the rest of the game,
+// no Date.now() needed. Lazily sized to the canvas on first rainy day.
+const RAIN_DROP_COUNT = 80;
+let rainDrops = null;
+
+function ensureRainDrops() {
+  if (rainDrops) return;
+  rainDrops = Array.from({ length: RAIN_DROP_COUNT }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    len: 8 + Math.random() * 6,
+    speed: 220 + Math.random() * 120,
+  }));
+}
+
+function updateRain(dt) {
+  if (weather.today !== "regen") return;
+  ensureRainDrops();
+  for (const drop of rainDrops) {
+    drop.y += drop.speed * dt;
+    drop.x += drop.speed * 0.25 * dt; // gentle diagonal drift
+    if (drop.y > canvas.height) {
+      drop.y = -drop.len;
+      drop.x = Math.random() * canvas.width;
+    }
+    if (drop.x > canvas.width) drop.x = 0;
+  }
 }
 
 function render() {
@@ -927,6 +984,33 @@ function render() {
     ctx.fillStyle = map.ambient.tint ?? "#6a4525";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
+  }
+
+  // Weather visuals — outdoor maps only. `map.ambient` is the signal interiors
+  // already opt into for the tint pass above, so it doubles as the indoor
+  // flag here too (no second per-map field needed): every interior sets it,
+  // every outdoor map omits it.
+  if (!map.ambient) {
+    if (weather.today === "regen") {
+      ensureRainDrops();
+      ctx.save();
+      ctx.fillStyle = "rgba(70,90,120,0.10)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "rgba(190,210,235,0.55)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (const drop of rainDrops) {
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x - drop.len * 0.25, drop.y - drop.len);
+      }
+      ctx.stroke();
+      ctx.restore();
+    } else if (weather.today === "bewoelkt") {
+      ctx.save();
+      ctx.fillStyle = "rgba(120,120,130,0.06)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    }
   }
 }
 

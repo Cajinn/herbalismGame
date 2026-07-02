@@ -15,6 +15,11 @@ export const strings = {
     bachufer: "Bachufer",
     alpweide: "Alpweide",
   },
+  wetter: {
+    sonnig: "☀️ Sonnig",
+    bewoelkt: "☁️ Bewölkt",
+    regen: "🌧 Regen",
+  },
   hud: {
     jahr: "Jahr",
     tag: "Tag",
@@ -285,5 +290,6 @@ export const strings = {
     mislabeled: "Achtung: Du hast diese Pflanze falsch bestimmt!",
     genesen: (name) => `${name} ist wieder gesund.`,
     verdorben: "Etwas in deinem Vorrat ist verdorben.",
+    regenGegossen: "Es regnet — die Beete sind gegossen.",
   },
 };
